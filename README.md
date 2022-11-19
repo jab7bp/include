@@ -6,7 +6,7 @@ These headers will provide functions that can be used for retrieving experiment 
 
 The two main "include" files are:
 
-GEM_lookup.h --> Functions for retrieving GEM information
+*GEM_lookup.h* --> Functions for retrieving GEM information
   lookup_config: returns Experiment Run Config number (0, 1, or 2)
   lookup_GEM_type: returns GEM type if given a runnum and GEM layer; 0 = UV, 1 = UVa XY, 2 = INFN XY
   lookup_GEM_type_from_global_mod_num: provide a runnum and a global module number (0 thru 11 depending on the config) and it turns a GEM Type (see above)
@@ -30,3 +30,22 @@ GEM_lookup.h --> Functions for retrieving GEM information
   INFN_XY_APV_strip_to_channel: strip-to-channel mapping for INFN XY APVs
   INFN_XY_APV_channel_to_strip: channel-to-strip mapping for INFN XY APVs
   ---------------------------------------------
+  
+  *beam_variables.h* --> Functions for retrieving beam info/variables
+  
+  This contains multiple functions that were created and used before a more general function was created. This one is:
+  
+  lookup_run_info
+  
+  Inputs: runnum and lookup_var
+  lookup_var can be: 
+    "beam_current"
+    "sbs_current"
+    "bb_current"
+    "bbcal_thresh"
+    "sbs_field"
+    "target"
+    
+    The return value from this function will be the "lookup_var" requested. For target 0 = LH2 and 1 = LD2. 
+    
+ lookup_target can also be used and returns the target as a string of either "LH2" or "LD2"
