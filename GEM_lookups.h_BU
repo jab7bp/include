@@ -1,0 +1,40 @@
+#ifndef GEM_LOOKUPS_H
+#define GEM_LOOKUPS_H
+
+#include <algorithm>
+
+int config;
+int gem_type;
+int nModules_total;
+int nModules_layer;
+int global_module_number;
+int numAPVs_U;
+int numAPVs_V;
+
+int lookup_config(int runnum);
+
+int lookup_GEM_type(int runnum, int layer);
+int lookup_GEM_type_from_global_mod_num(int runnum, int mod);
+
+int lookup_nModules_total(int runnum);
+int lookup_nModules_layer(int runnum, int layer);
+int lookup_global_mod_num(int runnum, int layer, int module_on_layer);
+
+int lookup_nAPVs(int gemType, int UorV);
+double APV_strip_nums(int APV, TString minmax);
+int strip_to_APV(int strip);
+
+int UVa_UV_APV_strip_to_channel(int strip);
+int UVa_UV_APV_channel_to_strip(int channel);
+
+int UVa_XY_APV_strip_to_channel(int strip);
+int UVa_XY_APV_channel_to_strip(int channel);
+
+int INFN_XY_APV_strip_to_channel(int strip);
+int INFN_XY_APV_channel_to_strip(int channel);
+
+int GEM_channel_to_strip(int gemType, int channel);
+int GEM_strip_to_channel(int gemType, int strip);
+
+#endif
+
