@@ -21,8 +21,8 @@ GEM_lookup.h --> Functions for retrieving GEM information
   GEM_channel_to_strip: This is a channel-to-strip mapping for GEM APVs. Input a gemType (0: UV, 1: UVa XY, 2: INFN XY) and a channel and get back the strip
   GEM_strip_channel: This is a strip-to-channel mapping for GEM APVs. Input a gemType (0: UV, 1: UVa XY, 2: INFN XY) and a strip and get back the channel
   
-  -THE FOLLOWING FUNCTIONS ARE INDIVIDIAULS SCRIPTS FOR STRIP<-->CHANNEL MAPPING-
-  -THESE ARE ALL REFERENCED BY EITHER 'GEM_channel_to_strip' or 'GEM_strip_to_channel'-
+  THE FOLLOWING FUNCTIONS ARE INDIVIDIAULS SCRIPTS FOR STRIP<-->CHANNEL MAPPING
+  THESE ARE ALL REFERENCED BY EITHER 'GEM_channel_to_strip' or 'GEM_strip_to_channel'
   UVa_UV_APV_strip_to_channel: strip-to-channel mapping for UVa UV APVs
   UVa_UV_APV_channel_to_straip: channel-to-strip mapping for UVa UV APVs
   UVa_XY_APV_strip_to_channel: strip-to-channel mapping for UVa XY APVs
