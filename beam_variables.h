@@ -3,6 +3,7 @@
 #include <algorithm>
 
 TString target;
+double sbsdist = 2.25;
 
 
 double lookup_beam_energy( int runnum ){
@@ -57,6 +58,136 @@ int lookup_kinematic( int runnum ){
 	return kinematic;
 }
 
+double lookup_BB_angle( int runnum ){
+	double BB_angle_lookup;
+	if( lookup_kinematic(runnum) == 1 ){
+		BB_angle_lookup = 51.0;
+	}
+	if( lookup_kinematic(runnum) == 4 ){
+		BB_angle_lookup = 36.0;
+	}
+	if( lookup_kinematic(runnum) == 7 ){
+		BB_angle_lookup = 40.0;
+	}
+	if( lookup_kinematic(runnum) == 8 ){
+		BB_angle_lookup = 26.5;
+	}
+	if( lookup_kinematic(runnum) == 9 ){
+		BB_angle_lookup = 49.0;
+	}
+	if( lookup_kinematic(runnum) == 11 ){
+		BB_angle_lookup = 42.0;
+	}
+	if( lookup_kinematic(runnum) == 14 ){
+		BB_angle_lookup = 46.5;
+	}
+	return BB_angle_lookup;
+}
+
+double lookup_SBS_angle( int runnum ){
+	double SBS_angle_lookup;
+	if( lookup_kinematic(runnum) == 1 ){
+		SBS_angle_lookup = 33.5;
+	}
+	if( lookup_kinematic(runnum) == 4 ){
+		SBS_angle_lookup = 31.9;
+	}
+	if( lookup_kinematic(runnum) == 7 ){
+		SBS_angle_lookup = 16.1;
+	}
+	if( lookup_kinematic(runnum) == 8 ){
+		SBS_angle_lookup = 29.9;
+	}
+	if( lookup_kinematic(runnum) == 9 ){
+		SBS_angle_lookup = 22.5;
+	}
+	if( lookup_kinematic(runnum) == 11 ){
+		SBS_angle_lookup = 13.3;
+	}
+	if( lookup_kinematic(runnum) == 14 ){
+		SBS_angle_lookup = 17.3;
+	}
+	return SBS_angle_lookup;
+}
+
+double lookup_HCal_angle( int runnum ){
+	double HCal_angle_lookup;
+	if( lookup_kinematic(runnum) == 1 ){
+		HCal_angle_lookup = 33.5;
+	}
+	if( lookup_kinematic(runnum) == 4 ){
+		HCal_angle_lookup = 31.9;
+	}
+	if( lookup_kinematic(runnum) == 7 ){
+		HCal_angle_lookup = 16.1;
+	}
+	if( lookup_kinematic(runnum) == 8 ){
+		HCal_angle_lookup = 29.4;
+	}
+	if( lookup_kinematic(runnum) == 9 ){
+		HCal_angle_lookup = 22.0;
+	}
+	if( lookup_kinematic(runnum) == 11 ){
+		HCal_angle_lookup = 13.3;
+	}
+	if( lookup_kinematic(runnum) == 14 ){
+		HCal_angle_lookup = 17.3;
+	}
+	return HCal_angle_lookup;
+}
+
+double lookup_BB_dist( int runnum ){
+	double BB_dist_lookup;
+	if( lookup_kinematic(runnum) == 1 ){
+		BB_dist_lookup = 1.85;
+	}
+	if( lookup_kinematic(runnum) == 4 ){
+		BB_dist_lookup = 1.80;
+	}
+	if( lookup_kinematic(runnum) == 7 ){
+		BB_dist_lookup = 1.85;
+	}
+	if( lookup_kinematic(runnum) == 8 ){
+		BB_dist_lookup = 2.00;
+	}
+	if( lookup_kinematic(runnum) == 9 ){
+		BB_dist_lookup = 1.55;
+	}
+	if( lookup_kinematic(runnum) == 11 ){
+		BB_dist_lookup = 1.55;
+	}
+	if( lookup_kinematic(runnum) == 14 ){
+		BB_dist_lookup = 1.85;
+	}
+	return BB_dist_lookup;
+}
+
+double lookup_HCal_dist( int runnum ){
+	double HCal_dist_lookup;
+	if( lookup_kinematic(runnum) == 1 ){
+		HCal_dist_lookup = 13.5;
+	}
+	if( lookup_kinematic(runnum) == 4 ){
+		HCal_dist_lookup = 11.0;
+	}
+	if( lookup_kinematic(runnum) == 7 ){
+		HCal_dist_lookup = 14.0;
+	}
+	if( lookup_kinematic(runnum) == 8 ){
+		HCal_dist_lookup = 11.0;
+	}
+	if( lookup_kinematic(runnum) == 9 ){
+		HCal_dist_lookup = 11.0;
+	}
+	if( lookup_kinematic(runnum) == 11 ){
+		HCal_dist_lookup = 14.5;
+	}
+	if( lookup_kinematic(runnum) == 14 ){
+		HCal_dist_lookup = 14.0;
+	}
+	return HCal_dist_lookup;
+}
+
 TString lookup_target( int runnum ){
 
 	vector<TString> targets = {"LH2", "LD2"};
@@ -90,32 +221,39 @@ TString lookup_target( int runnum ){
 
 double lookup_Ep_cut(int runnum, TString minmax){
 
-	vector<double> Ep_cut;
+	double lookup_min = -1;
+	double lookup_max = -1;
+	double lookup_val = -1;
 
-	if( lookup_kinematic(runnum) == 4 ){
-		Ep_cut = {0.875, 1.04};
-		if( !strncmp(minmax.Data(), "min", 3) ){
-			return Ep_cut[0];
-		}
-		if( !strncmp(minmax.Data(), "max", 3) ){
-			return Ep_cut[1];
+	vector<vector<double>> Ep_cut = { 
+		{11594, 0.9, 1.05},
+		{11595, 0.9, 1.05},
+		{11596, 0.9, 1.05},
+		{11597, 0.9, 1.05},
+
+	};
+
+	for( size_t i = 0; i < Ep_cut.size(); i++){
+		if( Ep_cut[i][0] == runnum ){
+			lookup_min = Ep_cut[i][1];
+			lookup_max = Ep_cut[i][2];
 		}
 	}
 
-	if( lookup_kinematic(runnum) == 9 ){
-		Ep_cut = {0.9, 1.15};
-		if( !strncmp(minmax.Data(), "min", 3) ){
-			return Ep_cut[0];
-		}
-		if( !strncmp(minmax.Data(), "max", 3) ){
-			return Ep_cut[1];
-		}
+	if( !strncmp(minmax.Data(), "min", 3) ){
+		lookup_val = lookup_min;
 	}
+	if( !strncmp(minmax.Data(), "max", 3) ){
+		lookup_val = lookup_max;
+	}
+
+	return lookup_val;
+
 }
 
 double lookup_run_info( int runnum, TString lookup_var){
-	double return_var;
-	//runnum, Beam_current, SBS_current, BigBite_current, BBCal_thresh, SBS_field, TARGET(0 = LH2, 1 = LD2)
+	double return_var = -99999;
+	//runnum, beam_current, sbs_current, bb_current, bbcal_thresh, sbs_field, target (0 = LH2, 1 = LD2)
 	
 	vector<vector<double>> all_run_info ={	{11436,6.5,630,750,-500,30,0}
 		,{11500,3.5,630,750,30,0}
@@ -864,7 +1002,7 @@ double lookup_run_info( int runnum, TString lookup_var){
 		,{13799,12,1470,750,-607,70,1}
 	};
 	
-	for( int i = 0; i < all_run_info.size(); i++){
+	for( size_t i = 0; i < all_run_info.size(); i++){
 		if( all_run_info[i][0] == runnum ){
 			if( !(strncmp(lookup_var, "beam_current", 12)) ){
 				return_var = all_run_info[i][1];
@@ -879,7 +1017,7 @@ double lookup_run_info( int runnum, TString lookup_var){
 				return_var = all_run_info[i][4];
 			}
 			if( !(strncmp(lookup_var, "sbs_field", 9)) ){
-				return_var = all_run_info[i][5];
+				return_var = 0.01*all_run_info[i][5];
 			}
 			if( !(strncmp(lookup_var, "target", 6)) ){
 				return_var = all_run_info[i][6];
