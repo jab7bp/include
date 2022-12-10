@@ -219,29 +219,135 @@ TString lookup_target( int runnum ){
 	return target_lookup;
 }
 
+double lookup_cut(int runnum, TString param){
+	double lookup_val = -1;
+	//Cuts vector:
+// 	runnum, PS_clus_e_cut, SH_PS_clus_e_cut, SH_PS_sigma, HCal_clus_e_cut, Ep, Ep_sigma, W2, W2_sigma, W, W_sigma, 
+	vector<vector<double>> cuts = {
+		{11493, 0.150, 1.49721, 2.43353e-01, .0075, 9.64468e-01, 8.41696e-02, 9.51695e-01, 1.88384e-01 },
+		{11494, 0.150, 1.7, 0.02, 0.959381, .0723608, 0.964638, 0.258728, 0.996746, 0.129869 },
+		{13479, 0.25, 2.80079, 4.23989e-01, 3.28841e-02, 9.61859e-01, 7.52286e-02, 9.17414e-01, 4.85251e-01},
+		{13544, 0.25, 2.74275, 3.96009e-01, 1.84462e-02, 9.57190e-01, 7.38953e-02, 1.02312, 2.68668e-01},
+		{13566, 0.25, 2.95883, 4.17844e-01, .015, 1.02859, 7.65564e-02, 1.0021, 2.96500e-01 },
+		{13585, 0.25, 2.76844, 3.96853e-01, .025, 0.956980, 0.068656, 9.86933e-01, 4.72408e-01, 0.955, 0.22863400 }
+
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
+	for( size_t i = 0; i < cuts.size(); i++){
+		if( cuts[i][0] == runnum ){
+			if( param == "PS_clus_e_cut" ){lookup_val = cuts[i][1];}
+			if( param == "SH_PS_clus_e_cut" ){lookup_val = cuts[i][2];}
+			if( param == "SH_PS_sigma" ){lookup_val = cuts[i][3];}
+			if( param == "HCal_clus_e_cut" ){lookup_val = cuts[i][4];}
+			if( param == "Ep" ){lookup_val = cuts[i][5];}
+			if( param == "Ep_sigma" ){lookup_val = cuts[i][6];}
+			if( param == "W2" ){lookup_val = cuts[i][7];}
+			if( param == "W2_sigma" ){lookup_val = cuts[i][8];}
+			if( param == "W" ){lookup_val = cuts[i][9];}
+			if( param == "W_sigma" ){lookup_val = cuts[i][10];}
+
+		}
+	}
+	return lookup_val;
+}
+
+double lookup_errors(int runnum, TString param){
+	double lookup_val = -1;
+	//Errors vector:
+// 	runnum, Ep, Ep_sigma, W2, W2_sigma, W, W_sigma, SH_PS, PS_SH_sigma
+
+	vector<vector<double>> errors = {
+		{11494, 6.69871E-05, 5.73715E-5, 4.05074E-3, 9.22625E-3, 1.91140E-3, 4.81047E-3 },
+		{11595, 1.33104E-4, 1.22936E0-4, 4.56945E-3, 9.42378E-3, 2.68183E-3, 4.83629E-3},
+		{13655, 4.74332e-5, 4.14841e-05, -1, -1, -1, -1},
+		{13585, 3.68758E-5, 3.54258E-5, -1, -1, -1, -1, 2.12500e-0, 2.12500e-0 }
+	};
+
+	for( size_t i = 0; i < errors.size(); i++){
+		if( errors[i][0] == runnum ){
+			if( param == "Ep" ){lookup_val = errors[i][1];}
+			if( param == "Ep_sigma" ){lookup_val = errors[i][2];}
+			if( param == "W2" ){lookup_val = errors[i][3];}
+			if( param == "W2_sigma" ){lookup_val = errors[i][4];}
+			if( param == "W" ){lookup_val = errors[i][5];}
+			if( param == "W_sigma" ){lookup_val = errors[i][6];}
+
+		}
+	}
+	return lookup_val;
+
+}
+
 double lookup_Ep_cut(int runnum, TString minmax){
 
 	double lookup_min = -1;
 	double lookup_max = -1;
+	double lookup_center = -1;
 	double lookup_val = -1;
 
 	vector<vector<double>> Ep_cut = { 
+		{11494, 0.88, 0.959, 1.038, 0.96468, -1, },
 		{11594, 0.9, 1.05},
-		{11595, 0.9, 1.05},
+		{11595, 0.9, 0.988, 1.05},
 		{11596, 0.9, 1.05},
 		{11597, 0.9, 1.05},
+		{13585, 0.88, 0.957069, 1.038}
 
 	};
 
 	for( size_t i = 0; i < Ep_cut.size(); i++){
 		if( Ep_cut[i][0] == runnum ){
 			lookup_min = Ep_cut[i][1];
-			lookup_max = Ep_cut[i][2];
+			lookup_center = Ep_cut[i][2];
+			lookup_max = Ep_cut[i][3];
 		}
 	}
 
 	if( !strncmp(minmax.Data(), "min", 3) ){
 		lookup_val = lookup_min;
+	}
+	if( !strncmp(minmax.Data(), "center", 6) ){
+		lookup_val = lookup_center;
+	}
+	if( !strncmp(minmax.Data(), "max", 3) ){
+		lookup_val = lookup_max;
+	}
+
+	return lookup_val;
+
+}
+
+double lookup_W2_cut(int runnum, TString minmax){
+
+	double lookup_min = -1;
+	double lookup_max = -1;
+	double lookup_center = -1;
+	double lookup_val = -1;
+
+	vector<vector<double>> W2_cut = { 
+		{11494, 0.96468-0.2581, 0.96468, 0.96468+0.2581},
+		{11594, 0.9, 1.05},
+		{11595, 1.0111-0.2257, 1.0111, 1.0111+.2257},
+		{11596, 0.9, 1.05},
+		{11597, 0.9, 1.05},
+		{13585, .8, .95, 1.2}
+
+	};
+
+	for( size_t i = 0; i < W2_cut.size(); i++){
+		if( W2_cut[i][0] == runnum ){
+			lookup_min = W2_cut[i][1];
+			lookup_center = W2_cut[i][2];
+			lookup_max = W2_cut[i][3];
+		}
+	}
+
+	if( !strncmp(minmax.Data(), "min", 3) ){
+		lookup_val = lookup_min;
+	}
+	if( !strncmp(minmax.Data(), "center", 6) ){
+		lookup_val = lookup_center;
 	}
 	if( !strncmp(minmax.Data(), "max", 3) ){
 		lookup_val = lookup_max;
