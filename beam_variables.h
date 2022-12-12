@@ -5,7 +5,6 @@
 TString target;
 double sbsdist = 2.25;
 
-
 double lookup_beam_energy( int runnum ){
 	double beam_energy = 0;
 
@@ -58,6 +57,7 @@ int lookup_kinematic( int runnum ){
 	return kinematic;
 }
 
+//Angle is in degrees
 double lookup_BB_angle( int runnum ){
 	double BB_angle_lookup;
 	if( lookup_kinematic(runnum) == 1 ){
@@ -228,7 +228,7 @@ double lookup_cut(int runnum, TString param){
 		{11494, 0.150, 1.7, 0.02, 0.959381, .0723608, 0.964638, 0.258728, 0.996746, 0.129869 },
 		{13479, 0.25, 2.80079, 4.23989e-01, 3.28841e-02, 9.61859e-01, 7.52286e-02, 9.17414e-01, 4.85251e-01},
 		{13544, 0.25, 2.74275, 3.96009e-01, 1.84462e-02, 9.57190e-01, 7.38953e-02, 1.02312, 2.68668e-01},
-		{13566, 0.25, 2.95883, 4.17844e-01, .015, 1.02859, 7.65564e-02, 1.0021, 2.96500e-01 },
+		{13566, 0.15, 2.95883, 0.417844, 0.015, 1.02859, 0.0765564, 0.997588, 0.29556, 1, 0.16742 },
 		{13585, 0.25, 2.76844, 3.96853e-01, .025, 0.956980, 0.068656, 9.86933e-01, 4.72408e-01, 0.955, 0.22863400 }
 
 	};
@@ -247,6 +247,34 @@ double lookup_cut(int runnum, TString param){
 			if( param == "W" ){lookup_val = cuts[i][9];}
 			if( param == "W_sigma" ){lookup_val = cuts[i][10];}
 
+		}
+	}
+	return lookup_val;
+}
+
+double lookup_dxdy(int runnum, TString param){
+	double lookup_val = -1;
+	//Cuts vector:
+// 	runnum, dx_p, dx_p_sigma, dx_n, dx_n_sigma, dy, dy_sigma, dx_pn_max
+	vector<vector<double>> dxdy_vec = {
+		{11493,},
+		{11494,},
+		{13479,},
+		{13544,},
+		{13566,},
+		{13585, 0.9, 0.09, 0.62, 0.15, 0.9, 0.09, 0.62, 0.15, 0.65}
+
+	};
+
+	for( size_t i = 0; i < dxdy_vec.size(); i++){
+		if( dxdy_vec[i][0] == runnum ){
+			if( param == "dx_p" ){lookup_val = dxdy_vec[i][1];}
+			if( param == "dx_p_sigma" ){lookup_val = dxdy_vec[i][2];}
+			if( param == "dx_n" ){lookup_val = dxdy_vec[i][3];}
+			if( param == "dx_n_sigma" ){lookup_val = dxdy_vec[i][4];}
+			if( param == "dy" ){lookup_val = dxdy_vec[i][5];}
+			if( param == "dy_sigma" ){lookup_val = dxdy_vec[i][6];}
+			if( param == "dx_pn_max" ){lookup_val = dxdy_vec[i][7];}
 		}
 	}
 	return lookup_val;
