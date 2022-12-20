@@ -222,26 +222,27 @@ TString lookup_target( int runnum ){
 double lookup_cut(int runnum, TString param){
 	double lookup_val = -1;
 	//Cuts vector:
-// 	runnum, PS_clus_e_cut, SH_PS_clus_e_cut, SH_PS_sigma, HCal_clus_e_cut, Ep, Ep_sigma, W2, W2_sigma, W, W_sigma, 
+// 	[0] runnum, [1] Ep, [2]Ep_sigma, [3]PS_clus_e_cut, [4]SH_PS_clus_e_cut, [5]SH_PS_sigma, [6]HCal_clus_e_cut, [7]W2, [8]W2_sigma, [9]W, [10]W_sigma, 
 	vector<vector<double>> cuts = {
-		{11493, 0.150, 1.49721, 2.43353e-01, .0075, 9.64468e-01, 8.41696e-02, 9.51695e-01, 1.88384e-01 },
-		{11494, 0.150, 1.7, 0.02, 0.959381, .0723608, 0.964638, 0.258728, 0.996746, 0.129869 },
-		{13479, 0.25, 2.80079, 4.23989e-01, 3.28841e-02, 9.61859e-01, 7.52286e-02, 9.17414e-01, 4.85251e-01},
-		{13544, 0.25, 2.74275, 3.96009e-01, 1.84462e-02, 9.57190e-01, 7.38953e-02, 1.02312, 2.68668e-01},
-		{13566, 0.15, 2.95883, 0.417844, 0.015, 1.02859, 0.0765564, 0.997588, 0.29556, 1, 0.16742 },
-		{13585, 0.25, 2.76844, 3.96853e-01, .025, 0.956980, 0.068656, 9.86933e-01, 4.72408e-01, 0.955, 0.22863400 }
+		{11449, 0.974283, 0.0661193, 0.150, 1.93, 0.183409, 0.03, 0.979163, 0.219495, 1.005, 0.138234},
+		{11493, 9.64468e-01, 8.41696e-02, 0.150, 1.49721, 2.43353e-01, .0075, 9.51695e-01, 1.88384e-01 },
+		{11494, 0.964638, 0.258728, 0.150, 1.7, 0.02, 0.959381, .0723608, 0.996746, 0.129869 },
+		{13479, 9.61859e-01, 7.52286e-02, 0.25, 2.80079, 4.23989e-01, 3.28841e-02, 9.17414e-01, 4.85251e-01},
+		{13544, 9.57190e-01, 7.38953e-02, 0.25, 2.74275, 3.96009e-01, 1.84462e-02, 1.02312, 2.68668e-01},
+		{13566, 1.02859, 0.0765564, 0.15, 2.95883, 0.417844, 0.015, 0.997588, 0.29556, 1, 0.16742 },
+		{13585, 0.956980, 0.068656, 0.25, 2.76844, 3.96853e-01, .025, 9.86933e-01, 4.72408e-01, 0.955, 0.22863400 }
 
 	};
 	//	9.38724e-01 4.57268e-01
 //13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
 	for( size_t i = 0; i < cuts.size(); i++){
 		if( cuts[i][0] == runnum ){
-			if( param == "PS_clus_e_cut" ){lookup_val = cuts[i][1];}
-			if( param == "SH_PS_clus_e_cut" ){lookup_val = cuts[i][2];}
-			if( param == "SH_PS_sigma" ){lookup_val = cuts[i][3];}
-			if( param == "HCal_clus_e_cut" ){lookup_val = cuts[i][4];}
-			if( param == "Ep" ){lookup_val = cuts[i][5];}
-			if( param == "Ep_sigma" ){lookup_val = cuts[i][6];}
+			if( param == "Ep" ){lookup_val = cuts[i][1];}
+			if( param == "Ep_sigma" ){lookup_val = cuts[i][2];}
+			if( param == "PS_clus_e_cut" ){lookup_val = cuts[i][3];}
+			if( param == "SH_PS_clus_e_cut" ){lookup_val = cuts[i][4];}
+			if( param == "SH_PS_sigma" ){lookup_val = cuts[i][5];}
+			if( param == "HCal_clus_e_cut" ){lookup_val = cuts[i][6];}
 			if( param == "W2" ){lookup_val = cuts[i][7];}
 			if( param == "W2_sigma" ){lookup_val = cuts[i][8];}
 			if( param == "W" ){lookup_val = cuts[i][9];}
@@ -252,33 +253,272 @@ double lookup_cut(int runnum, TString param){
 	return lookup_val;
 }
 
-double lookup_parsed_cut(int runnum, TString param){
+double lookup_calibrate_fit(TString target, int kine, int sbsfield, TString param){
 	double lookup_val = -1;
+	int target_int;
+	if( target == "LH2"){
+		target_int = 0;
+	}
+	if( target == "LD2" ){
+		target_int = 1;
+	}
 	//Cuts vector:
-// 	runnum, PS_clus_e_cut, SH_PS_clus_e_cut, SH_PS_sigma, HCal_clus_e_cut, Ep, Ep_sigma, W2, W2_sigma, W, W_sigma, 
+// [0]target_int, [1]kine, [2]sbsfield, [3]PS_min, [4]PS_max, [5]PS_sigma_min [6]PS_sigma_max, [7] SH_PS_min, [8]SH_PS_max, [9]SH_PS_sigma_min, [10]SH_PS_sigma_max
+// [11] Ep_min, [12]Ep_max, [13]Ep_sigma_min, [14] Ep_sigma_max, [15]W2_min, [16]W2_max, 
+//[17]  W2_sigma_min, [18] W2_sigma_max, [19]W_min, [20]W_max, [21]W_sigma_min, [22]W_sigma_max
 	vector<vector<double>> cuts = {
-		{11493, 0.150, 1.49721, 2.43353e-01, .0075, 9.64468e-01, 8.41696e-02, 9.51695e-01, 1.88384e-01 },
-		{11494, 0.150, 1.7, 0.02, 0.959381, .0723608, 0.964638, 0.258728, 0.996746, 0.129869 },
-		{13479, 0.25, 2.80079, 4.23989e-01, 3.28841e-02, 9.61859e-01, 7.52286e-02, 9.17414e-01, 4.85251e-01},
-		{13544, 0.25, 2.74275, 3.96009e-01, 1.84462e-02, 9.57190e-01, 7.38953e-02, 1.02312, 2.68668e-01},
-		{13566, 0.25, 3.49025, 0.337436, 0.042, 1.0068, 0.0635497, 0.98, 0.284907, 0.985, 0.160409 },
-		{13585, 0.25, 2.76844, 3.96853e-01, .025, 0.956980, 0.068656, 9.86933e-01, 4.72408e-01, 0.955, 0.22863400 }
+		{1, 8, 0, 0.8, 1.2, 0.01, 0.4, 1.07, 1.13, 0.01, 0.8, 1.9, 3.7, 0.01, 0.5, 0.77, 0.84, 0.01, 0.27, 0.87, 0.94, 0.01, 0.4},
+		{1, 8, 50, 0.8, 1.2, 0.01, 0.4, 1.07, 1.13, 0.01, 0.8, 1.9, 3.7, 0.01, 0.5, 0.87, 0.925, 0.01, 0.26, 0.95, 1.05, 0.01, 0.35},
+		{1, 8, 70, 0.9, 1.25, 0.01, 0.4, 0.95, 1.2, 0.01, 0.6, 1.9, 3.7, 0.01, 0.5, 0.85, .949, 0.01, 0.3, 0.95, 1.05, 0.01, 0.35},
+		{1, 9, 70, 0.975, 0.99, 0.01, 0.4, 0.55, 0.625, 0.01, 0.6, 1.56, 1.66, 0.01, 0.5 }
 
 	};
 	//	9.38724e-01 4.57268e-01
 //13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
 	for( size_t i = 0; i < cuts.size(); i++){
-		if( cuts[i][0] == runnum ){
-			if( param == "PS_clus_e_cut" ){lookup_val = cuts[i][1];}
-			if( param == "SH_PS_clus_e_cut" ){lookup_val = cuts[i][2];}
-			if( param == "SH_PS_sigma" ){lookup_val = cuts[i][3];}
-			if( param == "HCal_clus_e_cut" ){lookup_val = cuts[i][4];}
-			if( param == "Ep" ){lookup_val = cuts[i][5];}
-			if( param == "Ep_sigma" ){lookup_val = cuts[i][6];}
-			if( param == "W2" ){lookup_val = cuts[i][7];}
-			if( param == "W2_sigma" ){lookup_val = cuts[i][8];}
-			if( param == "W" ){lookup_val = cuts[i][9];}
-			if( param == "W_sigma" ){lookup_val = cuts[i][10];}
+		if( cuts[i][0] == target_int && cuts[i][1] == kine && cuts[i][2] == sbsfield ){
+			if( param == "Ep_min" ){lookup_val = cuts[i][3];}
+			if( param == "Ep_max" ){lookup_val = cuts[i][4];}
+			if( param == "Ep_min_sigma" ){lookup_val = cuts[i][5];}
+			if( param == "Ep_max_sigma" ){lookup_val = cuts[i][6];}
+			if( param == "PS_min" ){lookup_val = cuts[i][7];}
+			if( param == "PS_max" ){lookup_val = cuts[i][8];}
+			if( param == "PS_min_sigma" ){lookup_val = cuts[i][9];}
+			if( param == "PS_max_sigma" ){lookup_val = cuts[i][10];}
+			if( param == "SH_PS_min" ){lookup_val = cuts[i][11];}
+			if( param == "SH_PS_max" ){lookup_val = cuts[i][12];}
+			if( param == "SH_PS_min_sigma" ){lookup_val = cuts[i][13];}
+			if( param == "SH_PS_max_sigma" ){lookup_val = cuts[i][14];}
+			if( param == "W2_min" ){lookup_val = cuts[i][15];}
+			if( param == "W2_max" ){lookup_val = cuts[i][16];}
+			if( param == "W2_min_sigma" ){lookup_val = cuts[i][17];}
+			if( param == "W2_max_sigma" ){lookup_val = cuts[i][18];}
+			if( param == "W_min" ){lookup_val = cuts[i][19];}
+			if( param == "W_max" ){lookup_val = cuts[i][20];}
+			if( param == "W_min_sigma" ){lookup_val = cuts[i][21];}
+			if( param == "W_max_sigma" ){lookup_val = cuts[i][22];}
+
+		}
+	}
+
+	vector<vector<double>> default_cuts = {
+		{-1, -1, -1, 0.8, 1.2, 0.01, 0.4, 0.7, 1.2, 0.01, 0.8, 1.9, 3.7, 0.01, 0.5, 0.85, 0.98, 0.01, 0.4, 0.80, 0.985, 0.01, 0.4}
+
+	};
+	if( lookup_val == -1){
+		for( size_t i = 0; i < default_cuts.size(); i++){
+			if( param == "Ep_min" ){lookup_val = default_cuts[i][3];}
+			if( param == "Ep_max" ){lookup_val = default_cuts[i][4];}
+			if( param == "Ep_min_sigma" ){lookup_val = default_cuts[i][5];}
+			if( param == "Ep_max_sigma" ){lookup_val = default_cuts[i][6];}
+			if( param == "PS_min" ){lookup_val = default_cuts[i][7];}
+			if( param == "PS_max" ){lookup_val = default_cuts[i][8];}
+			if( param == "PS_min_sigma" ){lookup_val = default_cuts[i][9];}
+			if( param == "PS_max_sigma" ){lookup_val = default_cuts[i][10];}
+			if( param == "SH_PS_min" ){lookup_val = default_cuts[i][11];}
+			if( param == "SH_PS_max" ){lookup_val = default_cuts[i][12];}
+			if( param == "SH_PS_min_sigma" ){lookup_val = default_cuts[i][13];}
+			if( param == "SH_PS_max_sigma" ){lookup_val = default_cuts[i][14];}
+			if( param == "W2_min" ){lookup_val = default_cuts[i][15];}
+			if( param == "W2_min_sigma" ){lookup_val = default_cuts[i][16];}
+			if( param == "W2_max" ){lookup_val = default_cuts[i][17];}
+			if( param == "W2_max_sigma" ){lookup_val = default_cuts[i][18];}
+			if( param == "W_min" ){lookup_val = default_cuts[i][19];}
+			if( param == "W_min_sigma" ){lookup_val = default_cuts[i][20];}
+			if( param == "W_max" ){lookup_val = default_cuts[i][21];}
+			if( param == "W_max_sigma" ){lookup_val = default_cuts[i][22];}
+		}	
+	}
+	
+	return lookup_val;
+}
+
+double lookup_parsed_fit(TString target, int kine, TString param){
+	double lookup_val = -1;
+	int target_int;
+	if( target == "LH2"){
+		target_int = 0;
+	}
+	if( target == "LD2" ){
+		target_int = 1;
+	}
+	//Cuts vector:
+// [0]target_int, [1]kine, [2]sbsfield, [3]PS_min, [4]PS_min_sigma, [5]PS_max [6]PS_max_sigma, [7] SH_PS_min, [8]SH_PS_min_sigma, [9]SH_PS_max, [10]SH_PS_max_sigma
+// [11] Ep_min, [12] Ep_min_sigma, [13]Ep_max, [14] Ep_max_sigma, [15]W2_min, [16] W2_min_sigma, 
+//[17] W2_max, [18] W2_max_sigma, [19]W_min, [20]W_min_sigma, [21]W_max, [22]W_max_sigma
+	vector<vector<double>> parsed_fit_cuts = {
+		{1, 9, -1, 0.95, 1.02, 0.01, 0.12, 0.41, 0.51, 0.01, 0.8, 1.45, 1.55, 0.01, 0.5, 0.85, 0.97, 0.01, 0.4, 0.80, 0.995, 0.01, 0.4}
+
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
+	for( size_t i = 0; i < parsed_fit_cuts.size(); i++){
+		if( parsed_fit_cuts[i][0] == target_int && parsed_fit_cuts[i][1] == kine ){
+			if( param == "Ep_min" ){lookup_val = parsed_fit_cuts[i][3];}
+			if( param == "Ep_max" ){lookup_val = parsed_fit_cuts[i][4];}
+			if( param == "Ep_min_sigma" ){lookup_val = parsed_fit_cuts[i][5];}
+			if( param == "Ep_max_sigma" ){lookup_val = parsed_fit_cuts[i][6];}
+			if( param == "PS_min" ){lookup_val = parsed_fit_cuts[i][7];}
+			if( param == "PS_max" ){lookup_val = parsed_fit_cuts[i][8];}
+			if( param == "PS_min_sigma" ){lookup_val = parsed_fit_cuts[i][9];}
+			if( param == "PS_max_sigma" ){lookup_val = parsed_fit_cuts[i][10];}
+			if( param == "SH_PS_min" ){lookup_val = parsed_fit_cuts[i][11];}
+			if( param == "SH_PS_max" ){lookup_val = parsed_fit_cuts[i][12];}
+			if( param == "SH_PS_min_sigma" ){lookup_val = parsed_fit_cuts[i][13];}
+			if( param == "SH_PS_max_sigma" ){lookup_val = parsed_fit_cuts[i][14];}
+			if( param == "W2_min" ){lookup_val = parsed_fit_cuts[i][15];}
+			if( param == "W2_min_sigma" ){lookup_val = parsed_fit_cuts[i][16];}
+			if( param == "W2_max" ){lookup_val = parsed_fit_cuts[i][17];}
+			if( param == "W2_max_sigma" ){lookup_val = parsed_fit_cuts[i][18];}
+			if( param == "W_min" ){lookup_val = parsed_fit_cuts[i][19];}
+			if( param == "W_min_sigma" ){lookup_val = parsed_fit_cuts[i][20];}
+			if( param == "W_max" ){lookup_val = parsed_fit_cuts[i][21];}
+			if( param == "W_max_sigma" ){lookup_val = parsed_fit_cuts[i][22];}
+
+		}
+	}
+
+	vector<vector<double>> default_parsed_fit_cuts = {
+		{-1, -1, -1, 0.8, 1.2, 0.01, 0.4, 0.8, 1.2, 0.01, 0.8, 1.35, 1.6, 0.01, 0.5, 0.85, 0.98, 0.01, 0.4, 0.80, 0.985, 0.01, 0.4},
+
+	};
+	if( lookup_val == -1){
+		for( size_t i = 0; i < default_parsed_fit_cuts.size(); i++){
+			if( param == "Ep_min" ){lookup_val = default_parsed_fit_cuts[i][3];}
+			if( param == "Ep_max" ){lookup_val = default_parsed_fit_cuts[i][4];}
+			if( param == "Ep_min_sigma" ){lookup_val = default_parsed_fit_cuts[i][5];}
+			if( param == "Ep_max_sigma" ){lookup_val = default_parsed_fit_cuts[i][6];}
+			if( param == "PS_min" ){lookup_val = default_parsed_fit_cuts[i][7];}
+			if( param == "PS_max" ){lookup_val = default_parsed_fit_cuts[i][8];}
+			if( param == "PS_min_sigma" ){lookup_val = default_parsed_fit_cuts[i][9];}
+			if( param == "PS_max_sigma" ){lookup_val = default_parsed_fit_cuts[i][10];}
+			if( param == "SH_PS_min" ){lookup_val = default_parsed_fit_cuts[i][11];}
+			if( param == "SH_PS_max" ){lookup_val = default_parsed_fit_cuts[i][12];}
+			if( param == "SH_PS_min_sigma" ){lookup_val = default_parsed_fit_cuts[i][13];}
+			if( param == "SH_PS_max_sigma" ){lookup_val = default_parsed_fit_cuts[i][14];}
+			if( param == "W2_min" ){lookup_val = default_parsed_fit_cuts[i][15];}
+			if( param == "W2_min_sigma" ){lookup_val = default_parsed_fit_cuts[i][16];}
+			if( param == "W2_max" ){lookup_val = default_parsed_fit_cuts[i][17];}
+			if( param == "W2_max_sigma" ){lookup_val = default_parsed_fit_cuts[i][18];}
+			if( param == "W_min" ){lookup_val = default_parsed_fit_cuts[i][19];}
+			if( param == "W_min_sigma" ){lookup_val = default_parsed_fit_cuts[i][20];}
+			if( param == "W_max" ){lookup_val = default_parsed_fit_cuts[i][21];}
+			if( param == "W_max_sigma" ){lookup_val = default_parsed_fit_cuts[i][22];}
+		}	
+	}
+	
+	return lookup_val;
+}
+
+double lookup_parsed_cut(TString target, int kinematic, int mag, TString param){
+	double lookup_val = -1;
+
+	int target_int = -1;
+
+	//Targets: LH2 == 0, LD2 == 1
+	if( target == "LH2"){
+		target_int = 0;
+	}
+	if( target == "LD2"){
+		target_int = 1;
+	}
+
+	//Cuts vector:
+// [0] run_target, [1]Kine, [2] sbsfield, [3]Ep_mean, [4]Ep_sigma [5]PS_min, [6]SH_PS_mean, [7]SH_PS_sigma, [8]HCal_min, [9]W2_mean, [10]W2_sigma, [11]W_mean, [12]W_sigma, 
+//OLD:  runnum, PS_clus_e_cut, SH_PS_clus_e_cut, SH_PS_sigma, HCal_clus_e_cut, Ep, Ep_sigma, W2, W2_sigma, W, W_sigma, 
+
+	vector<vector<double>> cuts = {
+		{1, 4, 0, 0.956527, 0.064244, 0.15, 2.01496, 0.158437, 0.026, 0.911756, 0.219805, 0.966038, 0.110807 },
+		{1, 4, 30, 0.958483, 0.0666202, 0.15, 2.00752, 0.157567, 0.026, 0.959671, 0.198965, 0.985, 0.103403 },
+		{1, 4, 50, 0.965375, 0.0673284, 0.15, 2.01962, 0.159043, 0.026, 0.98, 0.182398, 0.985, 0.0913345 },
+		{1, 7, 1.30, 0.6, 0, 0.2, 1.10, 0.04, 0.75, 1.3},
+		{1, 8, 0, 0.966829, 0.0604167, 0.18, 3.4578, 0.267153, 0.028, 0.84, 0.27, 0.94, 0.150904 },
+		{1, 8, 50, 0.963503, 0.0588214, 0.18, 3.4242, 0.262852, 0.028, 0.925, 0.26, 0.987409, 0.131511 },
+		{1, 8, 70, 1.00182, 0.0695257, 0.18, 3.55784, 0.320457, 0.026, 0.949, 0.265948, 0.994452, 0.123653 },
+		// {1, 9, 70,},
+		{1, 11, },
+		{1, 14, },
+		{0, 4, },
+		{0, 7, },
+		{0, 11, },
+		{0, 14, },
+		{0, 8, },
+		{0, 9, }
+
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
+	for( size_t i = 0; i < cuts.size(); i++){
+		if( cuts[i][0] == target_int && cuts[i][1] == kinematic && cuts[i][2] == mag){
+			if( param == "Ep_mean" ){lookup_val = cuts[i][3];}
+			if( param == "Ep_sigma" ){lookup_val = cuts[i][4];}
+			if( param == "Ep_min" ){lookup_val = cuts[i][3] - cuts[i][4];}
+			if( param == "Ep_max" ){lookup_val = cuts[i][3] + cuts[i][4];}
+			if( param == "PS_min" ){lookup_val = cuts[i][5];}
+			if( param == "SH_PS_mean" ){lookup_val = cuts[i][6];}
+			if( param == "SH_PS_sigma" ){lookup_val = cuts[i][7];}
+			if( param == "SH_PS_min" ){lookup_val = cuts[i][6] - cuts[i][7];}
+			if( param == "SH_PS_max" ){lookup_val = cuts[i][6] + cuts[i][7];}
+			if( param == "HCal_min" ){lookup_val = cuts[i][8];}
+			if( param == "W2_min" ){lookup_val = cuts[i][9] - cuts[i][10];}
+			if( param == "W2_max" ){lookup_val = cuts[i][9] + cuts[i][11];}
+			if( param == "W2_mean" ){lookup_val = cuts[i][9];}
+			if( param == "W2_sigma" ){lookup_val = cuts[i][10];}
+			if( param == "W_mean" ){lookup_val = cuts[i][11];}
+			if( param == "W_sigma" ){lookup_val = cuts[i][12];}
+
+		}
+	}
+	return lookup_val;
+}
+
+double lookup_pre_parsed_cut(TString target, int kinematic, TString param){
+	double lookup_val = -1;
+
+	int target_int = -1;
+
+	//Targets: LH2 == 0, LD2 == 1
+	if( target == "LH2"){
+		target_int = 0;
+	}
+	if( target == "LD2"){
+		target_int = 1;
+	}
+
+	//Cuts vector:
+// run_target, Kine, Ep_min, Ep_max, PS_min, SH_PS_min, HCal_min, W2_min, W2_max, W_min, W_max
+	vector<vector<double>> cuts = {
+		{1, 4, 0.75, 1.2, 0.140, 1.25, 0.025, 0.6, 1.3, 9.51695e-01, 1.88384e-01, 0.955, 0.22863400},
+		{1, 7, 0.75, 1.30, 0.2, 1.10, 0.04, 0.6, 1.3},
+		{1, 8, 0.78, 1.22, 0.175, 2.20, 0.025, 0.6, 1.3},
+		// {1, 9, 0.21, 1.45, 0.241244, 0.006, 1.02, 0.118335 },
+		{1, 9, 0.725, 1.4, 0.21, 0.85, 0.03, 0.6, 1.25, 0.75, 1.2 },
+		// {13660, 0.81, 1.7, 0.187523, 0.006, 1.03634, 0.123049, 0.98, 0.314041, 0.985, 0.179382 },
+		{1, 11, },
+		{1, 14, },
+		{0, 4, },
+		{0, 7, },
+		{0, 11, },
+		{0, 14, },
+		{0, 8, },
+		{0, 9, }
+
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
+	for( size_t i = 0; i < cuts.size(); i++){
+		if( cuts[i][0] == target_int && cuts[i][1] == kinematic ){
+			if( param == "Ep_min" ){lookup_val = cuts[i][2];}
+			if( param == "Ep_max" ){lookup_val = cuts[i][3];}
+			if( param == "PS_min" ){lookup_val = cuts[i][4];}
+			if( param == "SH_PS_min" ){lookup_val = cuts[i][5];}
+			if( param == "HCal_min" ){lookup_val = cuts[i][6];}
+			if( param == "W2_min" ){lookup_val = cuts[i][7];}
+			if( param == "W2_max" ){lookup_val = cuts[i][8];}
+			if( param == "W2_mean" ){lookup_val = cuts[i][9];}
+			if( param == "W2_sigma" ){lookup_val = cuts[i][10];}
+			if( param == "W_mean" ){lookup_val = cuts[i][11];}
+			if( param == "W_sigma" ){lookup_val = cuts[i][12];}
 
 		}
 	}
@@ -308,6 +548,39 @@ double lookup_dxdy(int runnum, TString param){
 			if( param == "dy" ){lookup_val = dxdy_vec[i][5];}
 			if( param == "dy_sigma" ){lookup_val = dxdy_vec[i][6];}
 			if( param == "dx_pn_max" ){lookup_val = dxdy_vec[i][7];}
+		}
+	}
+	return lookup_val;
+}
+
+
+double lookup_parsed_dxdy(TString target, int kine, int sbsfield, TString param){
+	double lookup_val = -1;
+	int target_int;
+	if( target == "LH2" ){
+		target_int = 0;
+	}
+	if( target == "LD2" ){
+		target_int = 1;
+	}
+	//Cuts vector:
+// 	runnum, dx_p, dx_p_sigma, dx_n, dx_n_sigma, dy, dy_sigma, dx_pn_max
+	vector<vector<double>> dxdy_vec = {
+	
+		{1, 4, -0.787787, 0.176623, 0.0352742, 0.169769, -0.00455544, 0.258216, 1.16945},
+		{1, 8, -0.792278, 0.204108, 0.0789937, 0.170958, -0.0126515, 0.260425, 1.24634}
+
+	};
+
+	for( size_t i = 0; i < dxdy_vec.size(); i++){
+		if( dxdy_vec[i][0] == target_int && dxdy_vec[i][1] == kine && dxdy_vec[i][2] == sbsfield ){
+			if( param == "dx_p" ){lookup_val = dxdy_vec[i][2];}
+			if( param == "dx_p_sigma" ){lookup_val = dxdy_vec[i][3];}
+			if( param == "dx_n" ){lookup_val = dxdy_vec[i][4];}
+			if( param == "dx_n_sigma" ){lookup_val = dxdy_vec[i][5];}
+			if( param == "dy" ){lookup_val = dxdy_vec[i][6];}
+			if( param == "dy_sigma" ){lookup_val = dxdy_vec[i][7];}
+			if( param == "dx_pn_max" ){lookup_val = dxdy_vec[i][8];}
 		}
 	}
 	return lookup_val;
@@ -347,18 +620,18 @@ double lookup_XTALK_cut(int runnum, TString param){
 	vector<vector<double>> xtalk_cuts = {
 		// { 13566, 0.72, 3.21765, 0.448265, 0.07, 1.02202, 0.0749792 }// PRIM
 		// { 13566, 0.25, 3.21723, 0.450056, 0.08, 1.02126, 0.0751095, 0.0751095, 0.99109, 0.291603, 1, 0.168658 } //XTALK_ON
-		{13566, 0.15, 2.95883, 0.417844, 0.015, 1.02859, 0.0765564, 1.00188, 0.291855, 1.03, 0.178035 } //STD
+		{13566, 1.02859, 0.0765564, 0.15, 2.95883, 0.417844, 0.015, 1.00188, 0.291855, 1.03, 0.178035 } //STD
 	};
 	//	9.38724e-01 4.57268e-01
 //13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
 	for( size_t i = 0; i < xtalk_cuts.size(); i++){
 		if( xtalk_cuts[i][0] == runnum ){
-			if( param == "PS_clus_e_cut" ){lookup_val = xtalk_cuts[i][1];}
-			if( param == "SH_PS_clus_e_cut" ){lookup_val = xtalk_cuts[i][2];}
-			if( param == "SH_PS_sigma" ){lookup_val = xtalk_cuts[i][3];}
-			if( param == "HCal_clus_e_cut" ){lookup_val = xtalk_cuts[i][4];}
-			if( param == "Ep" ){lookup_val = xtalk_cuts[i][5];}
-			if( param == "Ep_sigma" ){lookup_val = xtalk_cuts[i][6];}
+			if( param == "Ep" ){lookup_val = xtalk_cuts[i][1];}
+			if( param == "Ep_sigma" ){lookup_val = xtalk_cuts[i][2];}
+			if( param == "PS_clus_e_cut" ){lookup_val = xtalk_cuts[i][3];}
+			if( param == "SH_PS_clus_e_cut" ){lookup_val = xtalk_cuts[i][4];}
+			if( param == "SH_PS_sigma" ){lookup_val = xtalk_cuts[i][5];}
+			if( param == "HCal_clus_e_cut" ){lookup_val = xtalk_cuts[i][6];}
 			if( param == "W2" ){lookup_val = xtalk_cuts[i][7];}
 			if( param == "W2_sigma" ){lookup_val = xtalk_cuts[i][8];}
 			if( param == "W" ){lookup_val = xtalk_cuts[i][9];}
@@ -444,7 +717,7 @@ int lookup_parsed_runnums(TString target, int kine, int sbsfield, int run_index)
 			13563, 13564, 13565, 13566, 13567, 13568, 13569, 13570, 13571, 13587, 13588, 13589, 13590, 13591, 13592, 13593, 13596, 13597, 13608, 13609, 13610, 
 			13612, 13613, 13614, 13615, 13616, 13617, 13618, 13619, 13620},
 		{1, 8, 100, 12, 13544, 13545, 13546, 13547, 13548, 13549, 13550, 13551, 13552, 13554, 13556, 13557},
-		{1, 9, 70, 67, 13660, 13661, 13662, 13664, 13665, 13666, 13677, 13678, 13679, 13680, 13681, 13682, 13684, 13685, 13686, 13687, 13688, 13689,
+		{1, 9, 70, 68, 13660, 13661, 13662, 13664, 13665, 13666, 13677, 13678, 13679, 13680, 13681, 13682, 13684, 13685, 13686, 13687, 13688, 13689,
 			13694, 13695, 13698, 13699, 13700, 13710, 13711, 13712, 13714, 13715, 13716, 13717, 13721, 13723, 13724, 13727, 13728, 13729, 13731, 13732,
 			13734, 13736, 13737, 13746, 13748, 13749, 13753, 13754, 13755, 13756, 13757, 13758, 13760, 13761, 13764, 13765, 13766, 13767, 13770, 13771,
 			13773, 13775, 13776, 13777, 13778, 13779, 13793, 13797, 13798, 13799},
