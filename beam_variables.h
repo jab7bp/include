@@ -4,6 +4,7 @@
 
 TString target;
 double sbsdist = 2.25;
+double PI = 3.14159265359;
 
 double lookup_beam_energy( int runnum ){
 	double beam_energy = 0;
@@ -24,6 +25,32 @@ double lookup_beam_energy( int runnum ){
 		beam_energy = 5.965;
 	}
 	else if( runnum >= 13656 && runnum <= 13799 ){
+		beam_energy = 4.013;
+	}
+	else{ beam_energy = -1.111; }
+
+	return beam_energy;
+}
+
+double lookup_beam_energy_from_kine( int kine ){
+	double beam_energy = 0;
+
+	if( kine == 4 ){
+		beam_energy = 3.728;
+	}
+	else if( kine == 7 ){
+		beam_energy = 7.906;
+	}
+	else if( kine == 11 ){
+		beam_energy = 9.8594;
+	}
+	else if( kine == 14 ){
+		beam_energy = 5.965;
+	}
+	else if( kine == 8 ){
+		beam_energy = 5.965;
+	}
+	else if( kine == 9 ){
 		beam_energy = 4.013;
 	}
 	else{ beam_energy = -1.111; }
@@ -84,6 +111,39 @@ double lookup_BB_angle( int runnum ){
 	return BB_angle_lookup;
 }
 
+double lookup_BB_angle_by_kine( int kine, TString unit ){
+	double BB_angle_lookup;
+	if( kine == 1 ){
+		BB_angle_lookup = 51.0;
+	}
+	if( kine == 4 ){
+		BB_angle_lookup = 36.0;
+	}
+	if( kine == 7 ){
+		BB_angle_lookup = 40.0;
+	}
+	if( kine == 8 ){
+		BB_angle_lookup = 26.5;
+	}
+	if( kine == 9 ){
+		BB_angle_lookup = 49.0;
+	}
+	if( kine == 11 ){
+		BB_angle_lookup = 42.0;
+	}
+	if( kine == 14 ){
+		BB_angle_lookup = 46.5;
+	}
+	if( unit == "rad"){
+		BB_angle_lookup = BB_angle_lookup*PI/180.0;
+	}
+	if( unit == "deg"){
+		BB_angle_lookup = BB_angle_lookup;
+	}
+
+	return BB_angle_lookup;
+}
+
 double lookup_SBS_angle( int runnum ){
 	double SBS_angle_lookup;
 	if( lookup_kinematic(runnum) == 1 ){
@@ -107,6 +167,39 @@ double lookup_SBS_angle( int runnum ){
 	if( lookup_kinematic(runnum) == 14 ){
 		SBS_angle_lookup = 17.3;
 	}
+	return SBS_angle_lookup;
+}
+
+double lookup_SBS_angle_by_kine( int kine , TString unit){
+	double SBS_angle_lookup;
+	if( kine == 1 ){
+		SBS_angle_lookup = 33.5;
+	}
+	if( kine == 4 ){
+		SBS_angle_lookup = 31.9;
+	}
+	if( kine == 7 ){
+		SBS_angle_lookup = 16.1;
+	}
+	if( kine == 8 ){
+		SBS_angle_lookup = 29.9;
+	}
+	if( kine == 9 ){
+		SBS_angle_lookup = 22.5;
+	}
+	if( kine == 11 ){
+		SBS_angle_lookup = 13.3;
+	}
+	if( kine == 14 ){
+		SBS_angle_lookup = 17.3;
+	}
+	if( unit == "rad"){
+		SBS_angle_lookup = SBS_angle_lookup*PI/180.0;
+	}
+	if( unit == "deg"){
+		SBS_angle_lookup = SBS_angle_lookup;
+	}
+
 	return SBS_angle_lookup;
 }
 
@@ -136,6 +229,39 @@ double lookup_HCal_angle( int runnum ){
 	return HCal_angle_lookup;
 }
 
+double lookup_HCal_angle_by_kine( int kine, TString unit ){
+	double HCal_angle_lookup;
+	if( kine == 1 ){
+		HCal_angle_lookup = 33.5;
+	}
+	if( kine == 4 ){
+		HCal_angle_lookup = 31.9;
+	}
+	if( kine == 7 ){
+		HCal_angle_lookup = 16.1;
+	}
+	if( kine == 8 ){
+		HCal_angle_lookup = 29.4;
+	}
+	if( kine == 9 ){
+		HCal_angle_lookup = 22.0;
+	}
+	if( kine == 11 ){
+		HCal_angle_lookup = 13.3;
+	}
+	if( kine == 14 ){
+		HCal_angle_lookup = 17.3;
+	}
+	if( unit == "rad"){
+		HCal_angle_lookup = HCal_angle_lookup*PI/180.0;
+	}
+	if( unit == "deg"){
+		HCal_angle_lookup = HCal_angle_lookup;
+	}
+
+	return HCal_angle_lookup;
+}
+
 double lookup_BB_dist( int runnum ){
 	double BB_dist_lookup;
 	if( lookup_kinematic(runnum) == 1 ){
@@ -162,6 +288,32 @@ double lookup_BB_dist( int runnum ){
 	return BB_dist_lookup;
 }
 
+double lookup_BB_dist_by_kine( int kine ){
+	double BB_dist_lookup;
+	if( kine == 1 ){
+		BB_dist_lookup = 1.85;
+	}
+	if( kine == 4 ){
+		BB_dist_lookup = 1.80;
+	}
+	if( kine == 7 ){
+		BB_dist_lookup = 1.85;
+	}
+	if( kine == 8 ){
+		BB_dist_lookup = 2.00;
+	}
+	if( kine == 9 ){
+		BB_dist_lookup = 1.55;
+	}
+	if( kine == 11 ){
+		BB_dist_lookup = 1.55;
+	}
+	if( kine == 14 ){
+		BB_dist_lookup = 1.85;
+	}
+	return BB_dist_lookup;
+}
+
 double lookup_HCal_dist( int runnum ){
 	double HCal_dist_lookup;
 	if( lookup_kinematic(runnum) == 1 ){
@@ -183,6 +335,32 @@ double lookup_HCal_dist( int runnum ){
 		HCal_dist_lookup = 14.5;
 	}
 	if( lookup_kinematic(runnum) == 14 ){
+		HCal_dist_lookup = 14.0;
+	}
+	return HCal_dist_lookup;
+}
+
+double lookup_HCal_dist_by_kine( int kine ){
+	double HCal_dist_lookup;
+	if( kine == 1 ){
+		HCal_dist_lookup = 13.5;
+	}
+	if( kine == 4 ){
+		HCal_dist_lookup = 11.0;
+	}
+	if( kine == 7 ){
+		HCal_dist_lookup = 14.0;
+	}
+	if( kine == 8 ){
+		HCal_dist_lookup = 11.0;
+	}
+	if( kine == 9 ){
+		HCal_dist_lookup = 11.0;
+	}
+	if( kine == 11 ){
+		HCal_dist_lookup = 14.5;
+	}
+	if( kine == 14 ){
 		HCal_dist_lookup = 14.0;
 	}
 	return HCal_dist_lookup;
@@ -221,13 +399,19 @@ TString lookup_target( int runnum ){
 
 double lookup_cut(int runnum, TString param){
 	double lookup_val = -1;
+	int this_kine = lookup_kinematic(runnum);
 	//Cuts vector:
+	//		{12314, 1.09381, 1.74566e-01, 0.150, 1.55, 0.2833, 0.12, 9.81425e-01, 2.27171e-01, 1.005, 1.41647e-01},
 // 	[0] runnum, [1] Ep, [2]Ep_sigma, [3]PS_clus_e_cut, [4]SH_PS_clus_e_cut, [5]SH_PS_sigma, [6]HCal_clus_e_cut, [7]W2, [8]W2_sigma, [9]W, [10]W_sigma, 
 	vector<vector<double>> cuts = {
-		{11449, 0.974283, 0.0661193, 0.150, 1.93, 0.183409, 0.03, 9.81425e-01, 2.27171e-01, 1.005, 1.41647e-01},
+		{11449, 0.983395, 0.0677099, 0.150, 1.55, 0.183409, 0.017, 0.997117, 2.44779e-01, 1.005, 1.4786e-01},
+		// {11449, 0.974283, 0.0661193, 0.150, 1.93, 0.183409, 0.03, 9.81425e-01, 2.27171e-01, 1.005, 1.41647e-01},
 		{11493, 9.64468e-01, 8.41696e-02, 0.150, 1.49721, 2.43353e-01, .0075, 9.51695e-01, 1.88384e-01 },
 		{11494, 0.964638, 0.258728, 0.150, 1.7, 0.02, 0.959381, .0723608, 0.996746, 0.129869 },
+		{12314, 1.06, 1.56895e-01, 0.3, 1.4685, .25, 0.05, 1.03916, 0.294778, 1.005, 0.4 },
+		// {12314, 1.09381, 0.174566, 0.2, 1.89067, 3.19452e-01, 0.12, 1.03916, 0.294778, 1.005, 0.4 },
 		{13479, 9.61859e-01, 7.52286e-02, 0.25, 2.80079, 4.23989e-01, 3.28841e-02, 9.17414e-01, 4.85251e-01},
+		{13491, 9.79956e-01, 7.24781e-02, 0.170, 2.84771, 0.384312, 1.08000, 3.30334e-01, 1.005, 1.69826e-01},
 		{13544, 9.57190e-01, 7.38953e-02, 0.25, 2.74275, 3.96009e-01, 1.84462e-02, 1.02312, 2.68668e-01},
 		{13566, 1.02859, 0.0765564, 0.15, 2.95883, 0.417844, 0.015, 0.997588, 0.29556, 1, 0.16742 },
 		{13585, 0.956980, 0.068656, 0.25, 2.76844, 3.96853e-01, .025, 9.86933e-01, 4.72408e-01, 0.955, 0.22863400 }
@@ -253,6 +437,101 @@ double lookup_cut(int runnum, TString param){
 	return lookup_val;
 }
 
+double lookup_cut_by_kine_and_mag(int kine, int mag, TString param){
+	double lookup_val = -1;
+	int this_kine = kine;
+	//Cuts vector:
+	//		{12314, 1.09381, 1.74566e-01, 0.150, 1.55, 0.2833, 0.12, 9.81425e-01, 2.27171e-01, 1.005, 1.41647e-01},
+// 	[0] runnum, [1] Ep, [2]Ep_sigma, [3]PS_clus_e_cut, [4]SH_PS_clus_e_cut, [5]SH_PS_sigma, [6]HCal_clus_e_cut, [7]W2, [8]W2_sigma, [9]W, [10]W_sigma, 
+	vector<vector<double>> cuts = {
+		{4, 30, 1, 0.08, 0.150, 1.500, 0.183409, 0.017, 0.96, 2.5e-01, 0.98, 2.5e-01},
+		{8, 70, 9.61859e-01, 7.52286e-02, 0.25, 2.80079, 4.23989e-01, 3.28841e-02, 9.17414e-01, 4.85251e-01, 0.95781, 2.5e-01}
+
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
+	for( size_t i = 0; i < cuts.size(); i++){
+		if( cuts[i][0] == kine && cuts[i][1] == mag ){
+			if( param == "Ep" ){lookup_val = cuts[i][2];}
+			if( param == "Ep_sigma" ){lookup_val = cuts[i][3];}
+			if( param == "PS_clus_e_cut" ){lookup_val = cuts[i][4];}
+			if( param == "SH_PS_clus_e_cut" ){lookup_val = cuts[i][5];}
+			if( param == "SH_PS_sigma" ){lookup_val = cuts[i][6];}
+			if( param == "HCal_clus_e_cut" ){lookup_val = cuts[i][7];}
+			if( param == "W2" ){lookup_val = cuts[i][8];}
+			if( param == "W2_sigma" ){lookup_val = cuts[i][9];}
+			if( param == "W" ){lookup_val = cuts[i][10];}
+			if( param == "W_sigma" ){lookup_val = cuts[i][11];}
+
+		}
+	}
+	return lookup_val;
+}
+
+double lookup_MC_info(int kine, int mag, TString param){
+	double lookup_val = -1;
+	int this_kine = kine;
+	//Cuts vector:
+	//		{12314, 1.09381, 1.74566e-01, 0.150, 1.55, 0.2833, 0.12, 9.81425e-01, 2.27171e-01, 1.005, 1.41647e-01},
+// 	[0] kine, [1] sbsMag, [2], 
+	vector<vector<double>> params = {
+		{4, 30, 9.61859e-01, 0.08, 0.150, 1.500, 0.183409, 0.017, 8.96345e-01, 2.27076e-01, 0.94675498, 1.40237e-01},
+		{4, 100, 1, 0.08, 0.150, 1.500, 0.183409, 0.017, 1.19768, 0.32, 9.48460e-01, 1.40237e-01},
+		{8, 70, 9.61859e-01, 7.52286e-02, 0.25, 2.80079, 4.23989e-01, 3.28841e-02, 9.17414e-01, 4.85251e-01, 0.95781, 2.5e-01}
+
+	};
+
+	for( size_t i = 0; i < params.size(); i++){
+		if( params[i][0] == kine && params[i][1] == mag ){
+			if( param == "Ep" ){lookup_val = params[i][2];}
+			if( param == "Ep_sigma" ){lookup_val = params[i][3];}
+			if( param == "PS_clus_e_cut" ){lookup_val = params[i][4];}
+			if( param == "SH_PS_clus_e_cut" ){lookup_val = params[i][5];}
+			if( param == "SH_PS_sigma" ){lookup_val = params[i][6];}
+			if( param == "HCal_clus_e_cut" ){lookup_val = params[i][7];}
+			if( param == "W2" ){lookup_val = params[i][8];}
+			if( param == "W2_sigma" ){lookup_val = params[i][9];}
+			if( param == "W" ){lookup_val = params[i][10];}
+			if( param == "W_sigma" ){lookup_val = params[i][11];}
+
+		}
+	}
+	return lookup_val;
+}
+
+double lookup_MC_cut(int kine, int mag, TString param){
+	double lookup_val = -1;
+	int this_kine = kine;
+	//Cuts vector:
+	//		{12314, 1.09381, 1.74566e-01, 0.150, 1.55, 0.2833, 0.12, 9.81425e-01, 2.27171e-01, 1.005, 1.41647e-01},
+// 	[0] runnum, [1] Ep, [2]Ep_sigma, [3]PS_clus_e_cut, [4]SH_PS_clus_e_cut, [5]SH_PS_sigma, [6]HCal_clus_e_cut, [7]W2, [8]W2_sigma, [9]W, [10]W_sigma, 
+	vector<vector<double>> cuts = {
+		// {4, 30, 9.61859e-01, 0.08, 0.150, 1.500, 0.183409, 0.017, 8.96345e-01, 2.27076e-01, 0.94675498, 1.40237e-01},
+		{4, 30, 9.61859e-01, 0.08, 0.150, 1.500, 0.183409, 0.017, 8.96345e-01, 2.27076e-01, 0.94675498, 1.40237e-01},
+		{4, 100, 1, 0.08, 0.150, 1.500, 0.183409, 0.017, 1.19768, 0.32, 9.48460e-01, 1.40237e-01},
+		{8, 70, 9.61859e-01, 7.52286e-02, 0.25, 2.80079, 4.23989e-01, 3.28841e-02, 9.17414e-01, 4.85251e-01, 0.95781, 2.5e-01}
+
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
+	for( size_t i = 0; i < cuts.size(); i++){
+		if( cuts[i][0] == kine && cuts[i][1] == mag ){
+			if( param == "Ep" ){lookup_val = cuts[i][2];}
+			if( param == "Ep_sigma" ){lookup_val = cuts[i][3];}
+			if( param == "PS_clus_e_cut" ){lookup_val = cuts[i][4];}
+			if( param == "SH_PS_clus_e_cut" ){lookup_val = cuts[i][5];}
+			if( param == "SH_PS_sigma" ){lookup_val = cuts[i][6];}
+			if( param == "HCal_clus_e_cut" ){lookup_val = cuts[i][7];}
+			if( param == "W2" ){lookup_val = cuts[i][8];}
+			if( param == "W2_sigma" ){lookup_val = cuts[i][9];}
+			if( param == "W" ){lookup_val = cuts[i][10];}
+			if( param == "W_sigma" ){lookup_val = cuts[i][11];}
+
+		}
+	}
+	return lookup_val;
+}
+
 double lookup_calibrate_fit(TString target, int kine, int sbsfield, TString param){
 	double lookup_val = -1;
 	int target_int;
@@ -270,7 +549,7 @@ double lookup_calibrate_fit(TString target, int kine, int sbsfield, TString para
 		{1, 8, 0, 0.8, 1.2, 0.01, 0.4, 1.07, 1.13, 0.01, 0.8, 1.9, 3.7, 0.01, 0.5, 0.77, 0.84, 0.01, 0.27, 0.87, 0.94, 0.01, 0.4},
 		{1, 8, 50, 0.8, 1.2, 0.01, 0.4, 1.07, 1.13, 0.01, 0.8, 1.9, 3.7, 0.01, 0.5, 0.87, 0.925, 0.01, 0.26, 0.95, 1.05, 0.01, 0.35},
 		{1, 8, 70, 0.9, 1.25, 0.01, 0.4, 0.95, 1.2, 0.01, 0.6, 1.9, 3.7, 0.01, 0.5, 0.85, .949, 0.01, 0.3, 0.95, 1.05, 0.01, 0.35},
-		{1, 9, 70, 0.975, 0.99, 0.01, 0.4, 0.55, 0.625, 0.01, 0.6, 1.56, 1.66, 0.01, 0.5 }
+		{1, 9, 70, 0.975, 0.99, 0.01, 0.4, 0.55, 0.625, 0.01, 0.6, 1.56, 1.66, 0.01, 0.5, 0.9, .94, 0.01, 0.3, 0.80, 0.978, 0.01, 0.4}
 
 	};
 	//	9.38724e-01 4.57268e-01
@@ -350,6 +629,8 @@ double lookup_parsed_fit(TString target, int kine, TString param){
 		{1, 9, -1, 0.95, 1.02, 0.01, 0.12, 0.41, 0.51, 0.01, 0.8, 1.45, 1.55, 0.01, 0.5, 0.85, 0.97, 0.01, 0.4, 0.80, 0.995, 0.01, 0.4}
 
 	};
+
+
 	//	9.38724e-01 4.57268e-01
 //13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
 	for( size_t i = 0; i < parsed_fit_cuts.size(); i++){
@@ -435,8 +716,9 @@ double lookup_parsed_cut(TString target, int kinematic, int mag, TString param){
 		{1, 8, 0, 0.966829, 0.0604167, 0.18, 3.4578, 0.267153, 0.028, 0.84, 0.27, 0.94, 0.150904 },
 		{1, 8, 50, 0.963503, 0.0588214, 0.18, 3.4242, 0.262852, 0.028, 0.925, 0.26, 0.987409, 0.131511 },
 		{1, 8, 70, 1.00182, 0.0695257, 0.18, 3.55784, 0.320457, 0.026, 0.949, 0.265948, 0.994452, 0.123653 },
+		{1, 9, 70, 0.99, 0.0792314, 0.22, 1.61907, 0.1443, 0.032, 0.94, 0.293621, 0.978, 0.132393 },
 		// {1, 9, 70,},
-		{1, 11, },
+		{1, 11, 100, 1.06, 0.12, 0.15, 1.87, 0.370981, 0.15, 1.0, 0.25, 1.0, 0.25},
 		{1, 14, },
 		{0, 4, },
 		{0, 7, },
@@ -525,6 +807,29 @@ double lookup_pre_parsed_cut(TString target, int kinematic, TString param){
 	return lookup_val;
 }
 
+double lookup_MC_dxdy(int kine, int mag, TString param){
+	double lookup_val = -1;
+	//Cuts vector:
+// 	[0]kine, [1]mag, [2]dx_p, [3]dx_p_sigma, [4]dx_n, [5]dx_n_sigma, [6]dy, [7]dy_sigma, [8]dx_pn_max
+	vector<vector<double>> dxdy_vec = {
+		{4, 30, -1.06, 0.20, -0.307, 0.19, -0.016, 0.24, 1.16945}
+
+	};
+
+	for( size_t i = 0; i < dxdy_vec.size(); i++){
+		if( dxdy_vec[i][0] == kine && dxdy_vec[i][1] == mag ){
+			if( param == "dx_p" ){lookup_val = dxdy_vec[i][2];}
+			if( param == "dx_p_sigma" ){lookup_val = dxdy_vec[i][3];}
+			if( param == "dx_n" ){lookup_val = dxdy_vec[i][4];}
+			if( param == "dx_n_sigma" ){lookup_val = dxdy_vec[i][5];}
+			if( param == "dy" ){lookup_val = dxdy_vec[i][6];}
+			if( param == "dy_sigma" ){lookup_val = dxdy_vec[i][7];}
+			if( param == "dx_pn_max" ){lookup_val = dxdy_vec[i][8];}
+		}
+	}
+	return lookup_val;
+}
+
 double lookup_dxdy(int runnum, TString param){
 	double lookup_val = -1;
 	//Cuts vector:
@@ -532,6 +837,7 @@ double lookup_dxdy(int runnum, TString param){
 	vector<vector<double>> dxdy_vec = {
 		{11493,},
 		{11494,},
+		{12314, -0.787787, 0.176623, 0.0352742, 0.169769, -0.00455544, 0.258216, 1.16945},
 		{13479,},
 		{13544,},
 		{13566, -0.787787, 0.176623, 0.0352742, 0.169769, -0.00455544, 0.258216, 1.16945},
@@ -551,6 +857,286 @@ double lookup_dxdy(int runnum, TString param){
 		}
 	}
 	return lookup_val;
+}
+
+double lookup_dxdy_by_kine_and_mag(int kine, int mag, TString param){
+	double lookup_val = -1;
+	//Cuts vector:
+// 	runnum, dx_p, dx_p_sigma, dx_n, dx_n_sigma, dy, dy_sigma, dx_pn_max
+	vector<vector<double>> dxdy_vec = {
+
+		{8, 70, -0.787787, 0.176623, 0.0352742, 0.169769, -0.00455544, 0.258216, 1.16945}
+
+	};
+
+	for( size_t i = 0; i < dxdy_vec.size(); i++){
+		if( dxdy_vec[i][0] == kine && dxdy_vec[i][1] == mag){
+			if( param == "dx_p" ){lookup_val = dxdy_vec[i][2];}
+			if( param == "dx_p_sigma" ){lookup_val = dxdy_vec[i][3];}
+			if( param == "dx_n" ){lookup_val = dxdy_vec[i][4];}
+			if( param == "dx_n_sigma" ){lookup_val = dxdy_vec[i][5];}
+			if( param == "dy" ){lookup_val = dxdy_vec[i][6];}
+			if( param == "dy_sigma" ){lookup_val = dxdy_vec[i][7];}
+			if( param == "dx_pn_max" ){lookup_val = dxdy_vec[i][8];}
+		}
+	}
+	return lookup_val;
+}
+
+double lookup_dxdy_parlimits(int kine, TString target, int sbsfield, TString param){
+	double lookup_val = -1;
+	int target_int;
+	if( target == "LH2" ){
+		target_int = 0;
+	}
+	if( target == "LD2" ){
+		target_int = 1;
+	}
+	
+//	kine, target, sbsfield ------ 	par1min, par1max, 
+//								 	par2min, par2max,
+//									par4min, par4max, 
+//									par5min, par5max,
+//									par6min, par6max,
+//									par7min, par7max,
+//									par8min, par8max,
+//									par9min, par9max,
+//									par10min, par10max
+	vector<vector<double>> parlimits = {
+		{4, 1, 30, -0.85, -0.55,
+					0.01, 0.25,
+					-0.05, 0.09,
+					0.01, 0.2,
+					140, 210,
+					-170, -60,
+					-130, -60,
+					10, 95,
+					5, 50
+		},
+		// {4, 1, 30, -0.85, -0.55,
+		// 			0.01, 0.25,
+		// 			-0.05, 0.09,
+		// 			0.01, 0.2,
+		// 			130, 160,
+		// 			-130, -70,
+		// 			-110, -50,
+		// 			5, 78,
+		// 			0, 35
+		// },
+		{8, 1, 70, -0.85, -0.55,
+					0.01, 0.25,
+					-0.05, 0.09,
+					0.01, 0.2,
+					10, 60,
+					-185, -10,
+					-170, -20,
+					0, 25,
+					0, 35
+		},
+		{9, 1, 70, -0.85, -0.55,
+					0.01, 0.25,
+					-0.05, 0.09,
+					0.01, 0.2,
+					10, 100,
+					-185, -10,
+					-170, -20,
+					0, 25,
+					0, 35
+		},
+		{11, 1, 100, -0.85, -0.55,
+					0.01, 0.25,
+					-0.05, 0.09,
+					0.01, 0.2,
+					40, 250,
+					-185, -30,
+					-170, -20,
+					5, 78,
+					0, 35
+		}
+	};
+
+	for( size_t i = 0; i < parlimits.size(); i++){
+		if( parlimits[i][0] == kine && parlimits[i][1] == target_int && parlimits[i][2] == sbsfield ){
+			if( param == "par1min" ){lookup_val = parlimits[i][3];}
+			if( param == "par1max" ){lookup_val = parlimits[i][4];}
+			if( param == "par2min" ){lookup_val = parlimits[i][5];}
+			if( param == "par2max" ){lookup_val = parlimits[i][6];}
+			if( param == "par4min" ){lookup_val = parlimits[i][7];}
+			if( param == "par4max" ){lookup_val = parlimits[i][8];}
+			if( param == "par5min" ){lookup_val = parlimits[i][9];}
+			if( param == "par5max" ){lookup_val = parlimits[i][10];}
+			if( param == "par6min" ){lookup_val = parlimits[i][11];}
+			if( param == "par6max" ){lookup_val = parlimits[i][12];}
+			if( param == "par7min" ){lookup_val = parlimits[i][13];}
+			if( param == "par7max" ){lookup_val = parlimits[i][14];}
+			if( param == "par8min" ){lookup_val = parlimits[i][15];}
+			if( param == "par8max" ){lookup_val = parlimits[i][16];}
+			if( param == "par9min" ){lookup_val = parlimits[i][17];}
+			if( param == "par9max" ){lookup_val = parlimits[i][18];}
+			if( param == "par10min" ){lookup_val = parlimits[i][19];}
+			if( param == "par10max" ){lookup_val = parlimits[i][20];}
+		}
+	}
+	return lookup_val;
+
+}
+
+double lookup_parsed_dx_parlimits(int kine, TString target, int sbsfield, TString param){
+	double lookup_val = -1;
+	int target_int;
+	if( target == "LH2" ){
+		target_int = 0;
+	}
+	if( target == "LD2" ){
+		target_int = 1;
+	}
+	
+//	kine, target, sbsfield ------ 	par1min, par1max, 
+//								 	par2min, par2max,
+//									par4min, par4max, 
+//									par5min, par5max,
+//									par6min, par6max,
+//									par7min, par7max,
+//									par8min, par8max,
+//									par9min, par9max,
+//									par10min, par10max
+	vector<vector<double>> parlimits = {
+		{4, 1, 30, -0.85, -0.55,
+					0.01, 0.25,
+					-0.05, 0.09,
+					0.01, 0.2,
+					50, 210,
+					-170, -10,
+					-130, -20,
+					-10, 95,
+					-10, 50
+		},
+		{8, 1, 70, -0.85, -0.55,
+					0.01, 0.25,
+					-0.05, 0.09,
+					0.01, 0.2,
+					40, 100,
+					-60, -10,
+					-50, 0,
+					0, 25,
+					0, 35
+		},
+		{9, 1, 70, -0.85, -0.55,
+					0.01, 0.25,
+					-0.05, 0.09,
+					0.01, 0.2,
+					10, 100,
+					-185, -10,
+					-170, -20,
+					0, 25,
+					0, 35
+		},
+		{11, 1, 100, -0.85, -0.55,
+					0.01, 0.25,
+					-0.05, 0.09,
+					0.01, 0.2,
+					40, 250,
+					-185, -30,
+					-170, -20,
+					5, 78,
+					0, 35
+		}
+	};
+
+	for( size_t i = 0; i < parlimits.size(); i++){
+		if( parlimits[i][0] == kine && parlimits[i][1] == target_int && parlimits[i][2] == sbsfield ){
+			if( param == "par1min" ){lookup_val = parlimits[i][3];}
+			if( param == "par1max" ){lookup_val = parlimits[i][4];}
+			if( param == "par2min" ){lookup_val = parlimits[i][5];}
+			if( param == "par2max" ){lookup_val = parlimits[i][6];}
+			if( param == "par4min" ){lookup_val = parlimits[i][7];}
+			if( param == "par4max" ){lookup_val = parlimits[i][8];}
+			if( param == "par5min" ){lookup_val = parlimits[i][9];}
+			if( param == "par5max" ){lookup_val = parlimits[i][10];}
+			if( param == "par6min" ){lookup_val = parlimits[i][11];}
+			if( param == "par6max" ){lookup_val = parlimits[i][12];}
+			if( param == "par7min" ){lookup_val = parlimits[i][13];}
+			if( param == "par7max" ){lookup_val = parlimits[i][14];}
+			if( param == "par8min" ){lookup_val = parlimits[i][15];}
+			if( param == "par8max" ){lookup_val = parlimits[i][16];}
+			if( param == "par9min" ){lookup_val = parlimits[i][17];}
+			if( param == "par9max" ){lookup_val = parlimits[i][18];}
+			if( param == "par10min" ){lookup_val = parlimits[i][19];}
+			if( param == "par10max" ){lookup_val = parlimits[i][20];}
+		}
+	}
+	return lookup_val;
+
+}
+
+double lookup_parsed_dy_parlimits(int kine, TString target, int sbsfield, TString param){
+	double lookup_val = -1;
+	int target_int;
+	if( target == "LH2" ){
+		target_int = 0;
+	}
+	if( target == "LD2" ){
+		target_int = 1;
+	}
+	
+//	kine, target, sbsfield ------ 	par1min, par1max, 
+//								 	par2min, par2max,
+//									par4min, par4max, 
+//									par5min, par5max,
+//									par6min, par6max,
+//									par7min, par7max,
+//									par8min, par8max,
+//									par9min, par9max,
+//									par10min, par10max
+	vector<vector<double>> parlimits = {
+		{4, 1, 30, -0.05, 0.05,
+					0.1, .25,
+					60, 180,
+					-10, 0,
+					-230, -140,
+					0, 5,
+					50, 80
+		},		
+		{8, 1, 70, -0.05, 0.05,
+					0.1, .25,
+					60, 180,
+					-10, 0,
+					-230, -200,
+					0, 5,
+					70, 80
+		},
+		{11, 1, 100, -0.85, -0.55,
+					0.01, 0.25,
+					-0.05, 0.09,
+					0.01, 0.2,
+					40, 250,
+					-185, -30,
+					-170, -20,
+					5, 78,
+					0, 35
+		}
+	};
+
+	for( size_t i = 0; i < parlimits.size(); i++){
+		if( parlimits[i][0] == kine && parlimits[i][1] == target_int && parlimits[i][2] == sbsfield ){
+			if( param == "par1min" ){lookup_val = parlimits[i][3];}
+			if( param == "par1max" ){lookup_val = parlimits[i][4];}
+			if( param == "par2min" ){lookup_val = parlimits[i][5];}
+			if( param == "par2max" ){lookup_val = parlimits[i][6];}
+			if( param == "par3min" ){lookup_val = parlimits[i][7];}
+			if( param == "par3max" ){lookup_val = parlimits[i][8];}
+			if( param == "par4min" ){lookup_val = parlimits[i][9];}
+			if( param == "par4max" ){lookup_val = parlimits[i][10];}
+			if( param == "par5min" ){lookup_val = parlimits[i][11];}
+			if( param == "par5max" ){lookup_val = parlimits[i][12];}
+			if( param == "par6min" ){lookup_val = parlimits[i][13];}
+			if( param == "par6max" ){lookup_val = parlimits[i][14];}
+			if( param == "par7min" ){lookup_val = parlimits[i][15];}
+			if( param == "par7max" ){lookup_val = parlimits[i][16];}
+		}
+	}
+	return lookup_val;
+
 }
 
 
@@ -616,10 +1202,11 @@ double lookup_errors(int runnum, TString param){
 double lookup_XTALK_cut(int runnum, TString param){
 	double lookup_val = -1;
 	//Cuts vector:
-// 	runnum, PS_clus_e_cut, SH_PS_clus_e_cut, SH_PS_sigma, HCal_clus_e_cut, Ep, Ep_sigma, W2, W2_sigma, W, W_sigma, 
+// 	runnum, EP, EP_sigma, PS_clus_e_cut, SH_PS_clus_e_cut, SH_PS_sigma, HCal_clus_e_cut, W2, W2_sigma, W, W_sigma, 
 	vector<vector<double>> xtalk_cuts = {
 		// { 13566, 0.72, 3.21765, 0.448265, 0.07, 1.02202, 0.0749792 }// PRIM
 		// { 13566, 0.25, 3.21723, 0.450056, 0.08, 1.02126, 0.0751095, 0.0751095, 0.99109, 0.291603, 1, 0.168658 } //XTALK_ON
+		{12314, 1.09389, 1.73866e-01, 0.15, 1.56, 2.88002e-01, 0.12},
 		{13566, 1.02859, 0.0765564, 0.15, 2.95883, 0.417844, 0.015, 1.00188, 0.291855, 1.03, 0.178035 } //STD
 	};
 	//	9.38724e-01 4.57268e-01
@@ -689,6 +1276,7 @@ int lookup_parsed_runs_cnt(TString target, int kine, int sbsfield){
 	return return_var;
 
 }
+
 
 int lookup_parsed_runnums(TString target, int kine, int sbsfield, int run_index){
 	int run_cnt = lookup_parsed_runs_cnt(target, kine, sbsfield);
@@ -1550,4 +2138,78 @@ double lookup_run_info( int runnum, TString lookup_var){
 	
 	return return_var;
 }
+
+
+
+double lookup_dxdy_by_kine(int runnum, TString param){
+	double lookup_val = -1;
+	int dxdy_kine = lookup_kinematic(runnum);
+	int dxdy_sbsfield = int(100*lookup_run_info(runnum, "sbs_field"));
+	TString dxdy_run_target = lookup_target(runnum);
+
+	int target_int;
+	if( target == "LH2" ){
+		target_int = 0;
+	}
+	if( target == "LD2" ){
+		target_int = 1;
+	}
+
+	//Cuts vector:
+// 	kine, sbs_field, target_int, dx_p, dx_p_sigma, dx_n, dx_n_sigma, dy, dy_sigma, dx_pn_max
+	vector<vector<double>> dxdy_vec = {
+		{4, 30, 1, },
+		{11494,},
+		{13479,},
+		{13544,},
+		{13566, -0.787787, 0.176623, 0.0352742, 0.169769, -0.00455544, 0.258216, 1.16945},
+		{13585, 0.9, 0.09, 0.62, 0.15, 0.9, 0.09, 0.62, 0.15, 0.65}
+
+	};
+
+	for( size_t i = 0; i < dxdy_vec.size(); i++){
+		if( dxdy_vec[i][0] == runnum ){
+			if( param == "dx_p" ){lookup_val = dxdy_vec[i][1];}
+			if( param == "dx_p_sigma" ){lookup_val = dxdy_vec[i][2];}
+			if( param == "dx_n" ){lookup_val = dxdy_vec[i][3];}
+			if( param == "dx_n_sigma" ){lookup_val = dxdy_vec[i][4];}
+			if( param == "dy" ){lookup_val = dxdy_vec[i][5];}
+			if( param == "dy_sigma" ){lookup_val = dxdy_vec[i][6];}
+			if( param == "dx_pn_max" ){lookup_val = dxdy_vec[i][7];}
+		}
+	}
+	return lookup_val;
+}
+
+
+double calc_luminosity(double Ibeam, TString targ ){
+	double luminosity = 0;
+
+	double q_e = 1.6E-19;
+	double N_A = 6.02E23;
+	double targ_len = 1.5E1;
+	double rho_LH2 = 7.23E-02;
+	double rho_LD2 = 1.67E-01;
+	double m_LH2 = 2.02E0;
+	double m_LD2 = 4.03E0;
+	double rho_targ = 0;
+	double lumin_factor = 0;
+
+	if( targ == "LH2" ){
+		rho_targ = (rho_LH2/m_LH2)*N_A*2;
+		// cout << "target is LH2, " << rho_targ << endl;
+	}
+	if( targ == "LD2" ){
+		rho_targ = (rho_LD2/m_LD2)*N_A*2*2;
+		// cout << "target is LD2, " << rho_targ << endl;
+	}
+
+	lumin_factor = rho_targ*(targ_len/q_e);
+
+	luminosity = lumin_factor*(1E-6)*Ibeam;
+
+	return luminosity;
+
+}
+
 #endif
