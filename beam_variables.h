@@ -5,6 +5,28 @@
 TString target;
 double sbsdist = 2.25;
 
+double lookup_beam_energy_from_kine( int kine ){
+	double beam_energy = 0;
+	if( kine == 4 ){
+		beam_energy = 3.7393;
+	}
+	if( kine == 7 ){
+		beam_energy = 7.9308;
+	}
+	if( kine == 8 ){
+		beam_energy = 5.9826;
+	}
+	if( kine == 9 ){
+		beam_energy = 4.0268;
+	}
+	if( kine == 11 ){
+		beam_energy = 9.889;
+	}
+	if( kine == 14 ){
+		beam_energy = 5.9828;
+	}
+	return beam_energy;
+}
 
 double lookup_beam_energy( int runnum ){
 	double beam_energy = 0;
@@ -58,6 +80,37 @@ int lookup_kinematic( int runnum ){
 	return kinematic;
 }
 
+double lookup_BB_angle_by_kine( int kine, TString type ){
+	double BB_angle;
+
+	if( kine == 4 ){
+		BB_angle = 36.0;
+	}
+	if( kine == 7 ){
+		BB_angle = 40.0;
+	}
+	if( kine == 8 ){
+		BB_angle = 46.5;
+	}
+	if( kine == 9 ){
+		BB_angle = 49.0;
+	}
+	if( kine == 1 ){
+		BB_angle = 42.0;
+	}
+	if( kine == 14 ){
+		BB_angle = 46.5;
+	}
+
+	if( type == "deg" ){
+		return BB_angle;
+	}
+
+	if( type == "rad" ){
+		return BB_angle*TMath::DegToRad();
+	}
+}
+
 double lookup_BB_angle( int runnum ){
 	double BB_angle_lookup;
 	if( lookup_kinematic(runnum) == 1 ){
@@ -82,6 +135,37 @@ double lookup_BB_angle( int runnum ){
 		BB_angle_lookup = 46.5;
 	}
 	return BB_angle_lookup;
+}
+
+double lookup_SBS_angle_by_kine( int kine, TString type ){
+	double SBS_angle = 0;
+
+	if( kine == 4 ){
+		SBS_angle = 31.9; 
+	}
+	if( kine == 7 ){
+		SBS_angle = 16.1; 
+	}
+	if( kine == 8 ){
+		SBS_angle = 29.9; 
+	}
+	if( kine == 9 ){
+		SBS_angle = 22.5; 
+	}
+	if( kine == 11 ){
+		SBS_angle = 13.3; 
+	}
+	if( kine == 14 ){
+		SBS_angle = 17.5; 
+	}
+
+	if( type == "deg" ){
+		return SBS_angle;
+	}
+
+	if( type == "rad" ){
+		return SBS_angle*TMath::DegToRad();
+	}
 }
 
 double lookup_SBS_angle( int runnum ){
@@ -110,6 +194,37 @@ double lookup_SBS_angle( int runnum ){
 	return SBS_angle_lookup;
 }
 
+double lookup_HCal_angle_by_kine( int kine, TString type ){
+	double HCal_angle = 0;
+
+	if( kine == 4 ){
+		HCal_angle = 31.9;
+	}
+	if( kine == 7 ){
+		HCal_angle = 16.1;
+	}
+	if( kine == 8 ){
+		HCal_angle = 29.4;
+	}
+	if( kine == 9 ){
+		HCal_angle = 22.0;
+	}
+	if( kine == 11 ){
+		HCal_angle = 14.5;
+	}
+	if( kine == 14 ){
+		HCal_angle = 17.3;
+	}
+
+	if( type == "deg" ){
+		return HCal_angle;
+	}
+
+	if( type == "rad" ){
+		return HCal_angle*TMath::DegToRad();
+	}
+}
+
 double lookup_HCal_angle( int runnum ){
 	double HCal_angle_lookup;
 	if( lookup_kinematic(runnum) == 1 ){
@@ -136,6 +251,31 @@ double lookup_HCal_angle( int runnum ){
 	return HCal_angle_lookup;
 }
 
+double lookup_BB_dist_by_kine( int kine ){
+	double BB_dist = 0;
+
+	if( kine == 4 ){
+		BB_dist = 1.80;
+	}
+	if( kine == 7 ){
+		BB_dist = 1.85;
+	}
+	if( kine == 8 ){
+		BB_dist = 2.00;
+	}
+	if( kine == 9 ){
+		BB_dist = 1.55;
+	}
+	if( kine == 11 ){
+		BB_dist = 1.55;
+	}
+	if( kine == 14 ){
+		BB_dist = 1.85;
+	}
+
+	return BB_dist;
+}
+
 double lookup_BB_dist( int runnum ){
 	double BB_dist_lookup;
 	if( lookup_kinematic(runnum) == 1 ){
@@ -160,6 +300,31 @@ double lookup_BB_dist( int runnum ){
 		BB_dist_lookup = 1.85;
 	}
 	return BB_dist_lookup;
+}
+
+double lookup_HCal_dist_by_kine( int kine ){
+	double HCal_dist = 0.0;
+
+	if( kine == 4 ){
+		HCal_dist = 11.0;
+	}
+	if( kine == 7 ){
+		HCal_dist = 14.0;
+	}
+	if( kine == 8 ){
+		HCal_dist = 11.0;
+	}
+	if( kine == 9 ){
+		HCal_dist = 11.0;
+	}
+	if( kine == 1 ){
+		HCal_dist = 14.5;
+	}
+	if( kine == 14 ){
+		HCal_dist = 14.0;
+	}
+
+	return HCal_dist;
 }
 
 double lookup_HCal_dist( int runnum ){
@@ -217,6 +382,60 @@ TString lookup_target( int runnum ){
 	}
 
 	return target_lookup;
+}
+
+double lookup_ADC_time_cut( TString run_target, int kine, int sbsfieldscale, TString selection){
+	double lookup_val = -1;
+
+	double ADC_time_min = 45.0;
+	double ADC_time_max = 65.0;
+	double ADC_time_mean = 55.0;
+
+	if( selection == "ADC_time_min" ){
+		lookup_val = ADC_time_min;
+	}
+	if( selection == "ADC_time_max" ){
+		lookup_val = ADC_time_max;
+	}
+	if( selection == "ADC_time_mean" ){
+		lookup_val = ADC_time_mean;
+	}
+
+	//kine, target, sbsfieldscale, ADC_min, ADC_max, ADC_mean
+	vector<vector<double>>ADC_times_LH2 = {
+		{4, 0, 45, 65, 55 },
+		{8, 0, 45, 65, 55 },
+		{9, 0, 45, 65, 55 },
+		{14, 0, 45, 65, 55 }
+	};
+	vector<vector<double>>ADC_times_LD2 = {
+		{4, 0, 45, 65, 55 },
+		{8, 0, 45, 65, 55 },
+		{9, 0, 45, 65, 55 },
+		{14, 0, 45, 65, 55 }
+	};
+
+	if( run_target == "LH2" ){
+		for( size_t i = 0; i < ADC_times_LH2.size(); i++ ){
+			if( ADC_times_LH2[i][0] == kine && ADC_times_LH2[i][1] == sbsfieldscale ){
+				if( selection == "ADC_time_min" ){lookup_val = ADC_times_LH2[i][2];}
+				if( selection == "ADC_time_max" ){lookup_val = ADC_times_LH2[i][3];}
+				if( selection == "ADC_time_mean" ){lookup_val = ADC_times_LH2[i][4];}
+			}
+		}
+	}
+	if( run_target == "LD2" ){
+		for( size_t i = 0; i < ADC_times_LD2.size(); i++ ){
+			if( ADC_times_LH2[i][0] == kine && ADC_times_LD2[i][1] == sbsfieldscale ){
+				if( selection == "ADC_time_min" ){lookup_val = ADC_times_LD2[i][2];}
+				if( selection == "ADC_time_max" ){lookup_val = ADC_times_LD2[i][3];}
+				if( selection == "ADC_time_mean" ){lookup_val = ADC_times_LD2[i][4];}
+			}
+		}
+	}
+
+	return lookup_val;
+
 }
 
 double lookup_cut(int runnum, TString param){
@@ -355,6 +574,136 @@ double lookup_W2_cut(int runnum, TString minmax){
 
 	return lookup_val;
 
+}
+
+int lookup_parsed_runs_cnt(TString target, int kine, int sbsfield){
+	int return_var = -1, target_int = -1;
+
+	//Targets: LH2 == 0, LD2 == 1
+	if( target == "LH2"){
+		target_int = 0;
+	}
+	if( target == "LD2"){
+		target_int = 1;
+	}
+
+	vector<vector<int>> parsed_run_cnts = {
+		{1, 4, 0, 6},
+		{1, 4, 30, 17},
+		{1, 4, 50, 3},
+		{1, 7, 85, 42},
+		{1, 8, 0, 10},
+		{1, 8, 50, 6},
+		{1, 8, 70, 49},
+		{1, 8, 100, 12},
+		{1, 9, 70, 68},
+		{1, 11, 0, 3},		
+		{1, 11, 100, 300},
+		{1, 14, 70, 52},
+		{0, 4, 30, 5},
+		{0, 4, 0, 3},
+		{0, 4, 50, 3},
+		{0, 7, 85, 16},
+		{0, 11, 100, 75},
+		{0, 11, 0, 2},
+		{0, 14, 70, 20},
+		{0, 14, 0, 4},
+		{0, 8, 70, 19},
+		{0, 8, 0, 7},
+		{0, 8, 100, 7},
+		{0, 8, 50, 1},
+		{0, 9, 70, 15}
+	};
+
+	for( size_t i = 0; i < parsed_run_cnts.size(); i++){
+		if( parsed_run_cnts[i][0] == target_int && parsed_run_cnts[i][1] == kine && parsed_run_cnts[i][2] == sbsfield ){
+			return_var = parsed_run_cnts[i][3];
+		}
+	}
+	return return_var;
+
+}
+
+int lookup_parsed_runnums(TString target, int kine, int sbsfield, int run_index){
+	int run_cnt = lookup_parsed_runs_cnt(target, kine, sbsfield);
+	int lookup_run = -1;
+
+	int target_int = -1;
+
+	//Targets: LH2 == 0, LD2 == 1
+	if( target == "LH2"){
+		target_int = 0;
+	}
+	if( target == "LD2"){
+		target_int = 1;
+	}
+
+	vector<vector<int>> parsed_runnums = {
+		{1, 4, 0, 6, 11579, 11580, 11581, 11582, 11583, 11586},
+		{1, 4, 30, 17, 11449, 11451, 11452, 11456, 11493, 11494, 11495, 11496, 11551, 11554, 11562, 11563, 11564, 11565, 11568, 11570, 11571},
+		{1, 4, 50, 3, 11593, 11594, 11595},
+		{1, 7, 85, 42, 11996, 11997, 11998, 11999, 12001, 12002, 12004, 12006, 12013, 12014, 12017, 12019, 12021, 12029, 12030, 12038, 12039, 
+			12040, 12041, 12042, 12043, 12044, 12045, 12046, 12047, 12048, 12050, 12051, 12055, 12056, 12057, 12059, 12060, 12062, 12063, 12065, 12066, 
+			12068, 12069, 12070, 12071, 12073},
+		{1, 8, 0, 10, 13468, 13470, 13472, 13473, 13474, 13475, 13476, 13477, 13478, 13479},
+		{1, 8, 50, 6, 13581, 13582, 13583, 13584, 13585, 13586},
+		{1, 8, 70, 49, 13453, 13454, 13455, 13491, 13492, 13493, 13494, 13495, 13496, 13497, 13502, 13503, 13504, 13505, 13558, 13559, 13560, 13561, 13562,
+			13563, 13564, 13565, 13566, 13567, 13568, 13569, 13570, 13571, 13587, 13588, 13589, 13590, 13591, 13592, 13593, 13596, 13597, 13608, 13609, 13610, 
+			13612, 13613, 13614, 13615, 13616, 13617, 13618, 13619, 13620},
+		{1, 8, 100, 12, 13544, 13545, 13546, 13547, 13548, 13549, 13550, 13551, 13552, 13554, 13556, 13557},
+		{1, 9, 70, 68, 13660, 13661, 13662, 13664, 13665, 13666, 13677, 13678, 13679, 13680, 13681, 13682, 13684, 13685, 13686, 13687, 13688, 13689,
+			13694, 13695, 13698, 13699, 13700, 13710, 13711, 13712, 13714, 13715, 13716, 13717, 13721, 13723, 13724, 13727, 13728, 13729, 13731, 13732,
+			13734, 13736, 13737, 13746, 13748, 13749, 13753, 13754, 13755, 13756, 13757, 13758, 13760, 13761, 13764, 13765, 13766, 13767, 13770, 13771,
+			13773, 13775, 13776, 13777, 13778, 13779, 13793, 13797, 13798, 13799},
+		{1, 11, 0, 3, 12726, 12728, 12729},		
+		{1, 11, 100, 300, 12314, 12315, 12316, 12318, 12319, 12321, 12322, 12323, 12333, 12337, 12338, 12339, 12341, 12342, 12343, 12344, 12346, 12347, 
+			12348, 12349, 12356, 12357, 12359, 12360, 12362, 12364, 12366, 12371, 12372, 12373, 12374, 12375, 12376, 12377, 12378, 12379, 12383, 12384, 
+			12385, 12387, 12388, 12394, 12395, 12396, 12403, 12404, 12405, 12406, 12407, 12408, 12409, 12410, 12411, 12412, 12416, 12423, 12424, 12425, 
+			12473, 12474, 12478, 12479, 12480, 12481, 12482, 12485, 12486, 12498, 12499, 12500, 12501, 12502, 12512, 12513, 12514, 12515, 12516, 12517, 
+			12521, 12523, 12527, 12532, 12534, 12535, 12536, 12537, 12538, 12539, 12541, 12542, 12543, 12544, 12547, 12549, 12550, 12551, 12552, 12553, 
+			12554, 12556, 12558, 12559, 12565, 12566, 12567, 12568, 12569, 12570, 12571, 12572, 12574, 12577, 12580, 12581, 12582, 12583, 12584, 12585, 
+			12586, 12589, 12590, 12592, 12593, 12597, 12598, 12599, 12614, 12618, 12619, 12620, 12623, 12627, 12628, 12638, 12639, 12641, 12642, 12643, 
+			12644, 12645, 12647, 12653, 12654, 12655, 12656, 12659, 12660, 12661, 12662, 12664, 12666, 12671, 12673, 12674, 12678, 12679, 12680, 12681, 
+			12682, 12683, 12684, 12686, 12687, 12688, 12693, 12694, 12695, 12697, 12699, 12700, 12701, 12702, 12706, 12707, 12708, 12709, 12710, 12711, 
+			12713, 12714, 12715, 12721, 12722, 12732, 12733, 12734, 12735, 12737, 12738, 12739, 12740, 12742, 12743, 12767, 12768, 12769, 12770, 12771, 
+			12772, 12773, 12778, 12779, 12781, 12782, 12796, 12797, 12798, 12799, 12801, 12802, 12813, 12814, 12815, 12816, 12817, 12819, 12820, 12824,
+			12825, 12826, 12827, 12828, 12829, 12830, 12894, 12896, 12897, 12902, 12903, 12904, 12906, 12907, 12908, 12909, 12911, 12912, 12913, 12914, 
+			12915, 12916, 12917, 12918, 12919, 12920, 12921, 12932, 12933, 12934, 12935, 12936, 12939, 12940, 12946, 12957, 12961, 12962, 12963, 12965, 
+			12968, 12969, 12970, 12971, 12972, 12975, 12976, 12977, 12979, 12980, 12982, 12983, 12984, 12986, 12987, 12988, 12989, 13000, 13029, 13030, 
+			13034, 13035, 13036, 13038, 13039, 13040, 13044, 13045, 13048, 13049, 13050, 13051, 13052, 13053, 13054, 13055, 13058, 13059, 13060, 13061, 13062, 13063},
+		{1, 14, 70, 52, 13305, 13306, 13307, 13308, 13309, 13314, 13315, 13316, 13317, 13318, 13319, 13322, 13323, 13324, 13325, 13342, 13344, 13353, 13357,
+			13358, 13359, 13360, 13361, 13362, 13363, 13364, 13368, 13369, 13370, 13371, 13372, 13373, 13381, 13382, 13384, 13385, 13387, 13388, 13389, 
+			13390, 13391, 13392, 13393, 13394, 13395, 13398, 13399, 13400, 13402, 13403, 13406, 13407},
+		{0, 4, 30, 5, 11436, 11500, 11547, 11548, 11616},
+		{0, 4, 0, 3, 11573, 11587, 11588},
+		{0, 4, 50, 3, 11589, 11590, 11592},
+		{0, 7, 85, 16, 11989, 11990, 11991, 11992, 11993, 11994, 12000, 12008, 12022, 12035, 12049, 12052, 12053, 12058, 12064, 12072},
+		{0, 11, 100, 75, 12313, 12320, 12335, 12336, 12340, 12345, 12355, 12358, 12363, 12367, 12368, 12369, 12370, 12380, 12382, 12400, 12401, 12414, 
+			12415, 12427, 12428, 12429, 12471, 12472, 12491, 12496, 12497, 12524, 12525, 12526, 12548, 12561, 12563, 12575, 12576, 12587, 12588, 12625, 
+			12626, 12657, 12658, 12675, 12676, 12677, 12961, 12692, 12704, 12705, 12716, 12747, 12758, 12765, 12776, 12777, 12809, 12810, 12812, 12822, 
+			12823, 12895, 12910, 12923, 12930, 12931, 12959, 12960, 12973, 12974, 13027, 13028, 13041, 13042, 13043, 13056, 13057},
+		{0, 11, 0, 2, 12730, 12731},
+		{0, 14, 70, 20, 13239, 13240, 13241, 13242, 13243, 13244, 13312, 13313, 13320, 13321, 13345, 13346, 13348, 13349, 13351, 13352, 13379, 13396, 13397, 13405},
+		{0, 14, 0, 4, 13375, 13376, 13377, 13378},
+		{0, 8, 70, 19, 13444, 13450, 13451, 13452, 13482, 13483, 13484, 13485, 13486, 13487, 13488, 13489, 13490, 13573, 13574, 13575, 13576, 13577, 13578},
+		{0, 8, 0, 7, 13459, 13460, 13461, 13463, 13464, 13465, 13466},
+		{0, 8, 100, 7, 13537, 13538, 13539, 13540, 13541, 13542, 13543},
+		{0, 8, 50, 1, 13580},
+		{0, 9, 70, 15, 13656, 13657, 13663, 13676, 13683, 13696, 13697, 13719, 13720, 13730, 13747, 13768, 13769, 13795, 13796}
+	};
+
+	for( size_t i = 0; i < parsed_runnums.size(); i++){
+		if( parsed_runnums[i][0] == target_int && parsed_runnums[i][1] == kine && parsed_runnums[i][2] == sbsfield ){
+			// for(size_t run = parsed_runnums[i][4]; run < parsed_runnums[i].size(); run++){
+			// 	runnum_vector.push_back(parsed_runnums[i][run]);
+			// 	cout << parsed_runnums[i][run] << endl;
+			// }
+			// break;
+			lookup_run = parsed_runnums[i][run_index + 4];
+		}
+	}
+	
+	return lookup_run;
 }
 
 double lookup_run_info( int runnum, TString lookup_var){

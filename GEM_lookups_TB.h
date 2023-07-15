@@ -1,368 +1,339 @@
-#include "/w/halla-scshelf2102/sbs/jboyd/xtalk/include/GEM_lookups.h"
+#ifndef GEM_LOOKUPS_H
+#define GEM_LOOKUPS_H
 
 #include <algorithm>
 
-int config;
-int gem_type;
-int nModules_total;
-int nModules_layer;
-int global_module_number;
-int numAPVs_U;
-int numAPVs_V;
+int config_TB;
+int gem_type_TB;
+int nModules_total_TB;
+int nModules_layer_TB;
+int global_module_number_TB;
+int numAPVs_U_TB;
+int numAPVs_V_TB;
 
-int lookup_config(int runnum){
+int lookup_config_TB(int runnum){
 	if( runnum >= 11180 && runnum <= 12073 ){
-		config = 0;
+		config_TB = 0;
 	}
 	else if( runnum >= 12078 && runnum <= 13086 ){
-		config = 1;
+		config_TB = 1;
 	}
 	else if( runnum >= 13095 && runnum <= 13799 ){
-		config = 2;
+		config_TB = 2;
 	}
-	else{ config = -99999; }
+	else{ config_TB = -99999; }
 
-	return config;
+	return config_TB;
 }
 
-int lookup_config_by_kine(int kine){
-	if( kine == 4 || kine == 7 ){
-		config = 0;
-	}
-	if( kine == 11 ){
-		config = 1;
-	}
-	if( kine == 8 || kine == 9 || kine == 14 ){
-		config = 2;
-	}
-
-	return config;
-}
-
-int lookup_nModules_by_kine( int kine ){
-	config = lookup_config_by_kine( kine );
-
-	if( config == 0 ){
-		nModules_total = 12;
-	}
-	if( config == 1 ){
-		nModules_total = 10;
-	}
-	if( config == 2 ){
-		lookup_nModules_total = 8;
-	}
-
-	return nModules_total;
-}
-
-int lookup_GEM_type(int runnum, int layer){
-	int config_num = lookup_config(runnum);
+int lookup_GEM_type_TB(int runnum, int layer){
+	int config_num = lookup_config_TB(runnum);
 
 	if( config_num == 0 ){
 		if( layer == 0 ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( layer == 1 ){
-			gem_type = 2;
+			gem_type_TB = 2;
 		}
 		if( layer == 2 ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( layer == 3 ){
-			gem_type = 2;
+			gem_type_TB = 2;
 		}
 		if( layer == 4 ){
-			gem_type = 1;
+			gem_type_TB = 1;
 		}
 	}
 
 	if( config_num == 1 ){
 		if( layer == 0 ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( layer == 1 ){
-			gem_type = 2;
+			gem_type_TB = 2;
 		}
 		if( layer == 2 ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( layer == 3 ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( layer == 4 ){
-			gem_type = 1;
+			gem_type_TB = 1;
 		}
 	}
 
 	if( config_num == 2 ){
 		if( layer == 0 ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( layer == 1 ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( layer == 2 ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( layer == 3 ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( layer == 4 ){
-			gem_type = 1;
+			gem_type_TB = 1;
 		}
 	}
 
-	return gem_type;
+	return gem_type_TB;
 }
 
-int lookup_GEM_type_from_global_mod_num(int runnum, int mod){
-	int config_num = lookup_config(runnum);
+int lookup_GEM_type_from_global_mod_num_TB(int runnum, int mod){
+	int config_num = lookup_config_TB(runnum);
 
 	if( config_num == 0 ){
 		if( (mod == 0) || (mod == 4) ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( (mod == 8) || (mod == 9) || (mod == 10) || ( mod == 11 ) ){
-			gem_type = 1;
+			gem_type_TB = 1;
 		}
 		if( (mod == 1) || (mod == 2) || (mod == 3) || (mod == 5) || (mod == 6) || (mod == 7) ){
-			gem_type = 2;
+			gem_type_TB = 2;
 		}
 		if( mod > 11 ){
-			gem_type = -99900;
+			gem_type_TB = -99900;
 		}
 	} 
 	if( config_num == 1 ){
 		if( (mod == 0) || (mod == 4) ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( (mod == 6) || (mod == 7) || (mod == 8) || ( mod == 9 ) ){
-			gem_type = 1;
+			gem_type_TB = 1;
 		}
 		if( (mod == 1) || (mod == 2) || (mod == 3) ){
-			gem_type = 2;
+			gem_type_TB = 2;
 		}
 		if( mod > 9 ){
-			gem_type = -99901;
+			gem_type_TB = -99901;
 		}
 	} 
 	if( config_num == 2 ){
 		if( (mod == 0) || (mod == 1) || (mod == 2) || (mod == 4) ){
-			gem_type = 0;
+			gem_type_TB = 0;
 		}
 		if( (mod == 4) || (mod == 5) || (mod == 6) || ( mod == 7 ) ){
-			gem_type = 2;
+			gem_type_TB = 1;
 		}
 		if( mod > 7 ){
-			gem_type = -99900;
+			gem_type_TB = -99900;
 		}
 	} 
-	return gem_type;
+	return gem_type_TB;
 }
 
-int lookup_nModules_total(int runnum){
-	int config_num = lookup_config(runnum);
+int lookup_nModules_total_TB(int runnum){
+	int config_num = lookup_config_TB(runnum);
 
 	if( config_num == 0 ){
-		nModules_total = 12;
+		nModules_total_TB = 12;
 	}
 	if( config_num == 1 ){
-		nModules_total = 10;
+		nModules_total_TB = 10;
 	}
 	if( config_num == 2 ){
-		nModules_total = 8;
+		nModules_total_TB = 8;
 	}
-	return nModules_total;
+	return nModules_total_TB;
 }
 
-int lookup_nModules_layer(int runnum, int layer){
-	int config_num = lookup_config(runnum);
+int lookup_nModules_layer_TB(int runnum, int layer){
+	int config_num = lookup_config_TB(runnum);
 
 	if( config_num == 0 ){
 		if( layer == 0 ){
-			nModules_layer = 1;
+			nModules_layer_TB = 1;
 		}
 		if( layer == 1 ){
-			nModules_layer = 3;
+			nModules_layer_TB = 3;
 		}
 		if( layer == 2 ){
-			nModules_layer = 1;
+			nModules_layer_TB = 1;
 		}
 		if( layer == 3 ){
-			nModules_layer = 3;
+			nModules_layer_TB = 3;
 		}
 		if( layer == 4 ){
-			nModules_layer = 4;
+			nModules_layer_TB = 4;
 		}
 	}
 	if( config_num == 1 ){
 		if( layer == 0 ){
-			nModules_layer = 1;
+			nModules_layer_TB = 1;
 		}
 		if( layer == 1 ){
-			nModules_layer = 3;
+			nModules_layer_TB = 3;
 		}
 		if( layer == 2 ){
-			nModules_layer = 1;
+			nModules_layer_TB = 1;
 		}
 		if( layer == 3 ){
-			nModules_layer = 1;
+			nModules_layer_TB = 1;
 		}
 		if( layer == 4 ){
-			nModules_layer = 4;
+			nModules_layer_TB = 4;
 		}
 	}
 	if( config_num == 2 ){
 		if( layer == 0 ){
-			nModules_layer = 1;
+			nModules_layer_TB = 1;
 		}
 		if( layer == 1 ){
-			nModules_layer = 1;
+			nModules_layer_TB = 1;
 		}
 		if( layer == 2 ){
-			nModules_layer = 1;
+			nModules_layer_TB = 1;
 		}
 		if( layer == 3 ){
-			nModules_layer = 1;
+			nModules_layer_TB = 1;
 		}
 		if( layer == 4 ){
-			nModules_layer = 4;
+			nModules_layer_TB = 4;
 		}
 	}
-	return nModules_layer;
+	return nModules_layer_TB;
 }
 
-int lookup_global_mod_num(int runnum, int layer, int module_on_layer){
-	int config_num = lookup_config(runnum);
+int lookup_global_mod_num_TB(int runnum, int layer, int module_on_layer){
+	int config_num = lookup_config_TB(runnum);
 
 	if( config_num == 0){
 		if( layer == 0 ){
-			global_module_number = 0;
+			global_module_number_TB = 0;
 			if( module_on_layer > 0 ){
-				global_module_number = -99900;
+				global_module_number_TB = -99900;
 			}
 		}
 		if( layer == 1 ){
-			global_module_number = module_on_layer + 1;
+			global_module_number_TB = module_on_layer + 1;
 			if( module_on_layer > 2 ){
-				global_module_number = -99901;
+				global_module_number_TB = -99901;
 			}
 		}
 		if( layer == 2 ){
-			global_module_number = 4;
+			global_module_number_TB = 4;
 			if( module_on_layer > 0 ){
-				global_module_number = -99902;
+				global_module_number_TB = -99902;
 			}
 		}
 		if( layer == 3 ){
-			global_module_number = module_on_layer + 5;
+			global_module_number_TB = module_on_layer + 5;
 			if( module_on_layer > 2 ){
-				global_module_number = -99903;
+				global_module_number_TB = -99903;
 			}
 		}
 		if( layer == 4 ){
-			global_module_number = module_on_layer + 8;
+			global_module_number_TB = module_on_layer + 8;
 			if( module_on_layer > 3 ){
-				global_module_number = -99904;
+				global_module_number_TB = -99904;
 			}
 		}
 	}
 
 	if( config_num == 1){
 		if( layer == 0 ){
-			global_module_number = 0;
+			global_module_number_TB = 0;
 			if( module_on_layer > 0 ){
-				global_module_number = -99910;
+				global_module_number_TB = -99910;
 			}
 		}
 		if( layer == 1 ){
-			global_module_number = module_on_layer + 1;
+			global_module_number_TB = module_on_layer + 1;
 			if( module_on_layer > 2 ){
-				global_module_number = -99911;
+				global_module_number_TB = -99911;
 			}
 		}
 		if( layer == 2 ){
-			global_module_number = 4;
+			global_module_number_TB = 4;
 			if( module_on_layer > 0 ){
-				global_module_number = -99912;
+				global_module_number_TB = -99912;
 			}
 		}
 		if( layer == 3 ){
-			global_module_number = 5;
+			global_module_number_TB = 5;
 			if( module_on_layer > 0 ){
-				global_module_number = -99913;
+				global_module_number_TB = -99913;
 			}
 		}
 		if( layer == 4 ){
-			global_module_number = module_on_layer + 6;
+			global_module_number_TB = module_on_layer + 6;
 			if( module_on_layer > 3 ){
-				global_module_number = -99914;
+				global_module_number_TB = -99914;
 			}
 		}
 	}
 
 	if( config_num == 2){
 		if( layer == 0 ){
-			global_module_number = 0;
+			global_module_number_TB = 0;
 			if( module_on_layer > 0 ){
-				global_module_number = -99920;
+				global_module_number_TB = -99920;
 			}
 		}
 		if( layer == 1 ){
-			global_module_number = 1;
+			global_module_number_TB = 1;
 			if( module_on_layer > 0 ){
-				global_module_number = -99921;
+				global_module_number_TB = -99921;
 			}
 		}
 		if( layer == 2 ){
-			global_module_number = 2;
+			global_module_number_TB = 2;
 			if( module_on_layer > 0 ){
-				global_module_number = -99922;
+				global_module_number_TB = -99922;
 			}
 		}
 		if( layer == 3 ){
-			global_module_number = 3;
+			global_module_number_TB = 3;
 			if( module_on_layer > 0 ){
-				global_module_number = -99923;
+				global_module_number_TB = -99923;
 			}
 		}
 		if( layer == 4 ){
-			global_module_number = module_on_layer + 4;
+			global_module_number_TB = module_on_layer + 4;
 			if( module_on_layer > 3 ){
-				global_module_number = -99924;
+				global_module_number_TB = -99924;
 			}
 		}
 	}
 
-	return global_module_number;
+	return global_module_number_TB;
 }
 
-int lookup_nAPVs(int gemType, int UorV){
+int lookup_nAPVs_TB(int gemType, int UorV){
 	int nAPVs = -99996;
 	if( gemType == 0 ){
-		numAPVs_U = 30;
-		numAPVs_V = 30;
+		numAPVs_U_TB = 30;
+		numAPVs_V_TB = 30;
 	}
 	if( gemType == 1 ){
-		numAPVs_U = 10;
-		numAPVs_V = 12;
+		numAPVs_U_TB = 10;
+		numAPVs_V_TB = 12;
 	}
 	if( gemType == 2 ){
-		numAPVs_U = 10;
-		numAPVs_V = 8;
+		numAPVs_U_TB = 10;
+		numAPVs_V_TB = 8;
 	}
 
 	if( UorV == 0 ){
-		nAPVs = numAPVs_U;
+		nAPVs = numAPVs_U_TB;
 	}
 	if( UorV == 1){
-		nAPVs = numAPVs_V;
+		nAPVs = numAPVs_V_TB;
 	}
 
 	return nAPVs;
 }
 
-double APV_strip_nums(int APV, TString minmax){
+double APV_strip_nums_TB(int APV, TString minmax){
 	int minmax_output = -91000;
 	int apv_min_max_strips[30][2] =	{{0, 127},
 									{128, 255},
@@ -404,7 +375,7 @@ double APV_strip_nums(int APV, TString minmax){
 	return minmax_output;
 }
 
-int strip_to_APV(int strip){
+int strip_to_APV_TB(int strip){
 	int APV;
 	if( strip >= 0 && strip <= 127 ){ APV = 0; }
 	if( strip >= 128 && strip <= 255 ){ APV = 1; }
@@ -438,8 +409,14 @@ int strip_to_APV(int strip){
 	if( strip >= 3712 && strip <= 3839 ){ APV = 29; }
 	return APV;
 }
+int APV_to_strip_TB(int APV){
+	int first_APV_strip = -1;
+	first_APV_strip = APV*128;
 
-int UVa_UV_APV_strip_to_channel(int strip) {
+	return first_APV_strip;
+}
+
+int UVa_UV_APV_strip_to_channel_TB(int strip) {
 	int UV_APV_channel;
 	//Mapping for UVa UV GEM APV strip to channel
 	const int _mapped_strip_uva_uv[128] = {
@@ -459,7 +436,7 @@ int UVa_UV_APV_strip_to_channel(int strip) {
 	};
 
 	if(strip >= 128){
-		std::cout << std::endl << " WARNING!!! APVs only have strips from 0 - 127. Cannot have strips >= 128." << std::endl;
+		std::cout << std::endl << " **TB** WARNING!!! APVs only have strips from 0 - 127. Cannot have strips >= 128." << std::endl;
 		UV_APV_channel = -99990;
 	}
 	else{
@@ -469,7 +446,7 @@ int UVa_UV_APV_strip_to_channel(int strip) {
 	return UV_APV_channel;	
 }
 
-int UVa_UV_APV_channel_to_strip(int channel){
+int UVa_UV_APV_channel_to_strip_TB(int channel){
 	int UVa_UV_APV_strip;
 	//Mapping for UVa UV GEM APV strip to channel
 	const int _mapped_strip_uva_uv[128] = {
@@ -489,7 +466,7 @@ int UVa_UV_APV_channel_to_strip(int channel){
 	};
 
 	if(channel >= 128){
-		std::cout << std::endl << " WARNING!!! APVs only have channels from 0 - 127. Cannot have channels >= 128." << std::endl;
+		std::cout << std::endl << " **TB** WARNING!!! APVs only have channels from 0 - 127. Cannot have channels >= 128." << std::endl;
 		UVa_UV_APV_strip = -99991;
 	}
 
@@ -499,7 +476,7 @@ int UVa_UV_APV_channel_to_strip(int channel){
 	return UVa_UV_APV_strip;
 }
 
-int UVa_XY_APV_strip_to_channel(int strip){
+int UVa_XY_APV_strip_to_channel_TB(int strip){
 	int UVa_XY_APV_channel;
 	//Mapping for UVa XY APV strip to channel
 	const int _mapped_strip_uva_xy[128] = {
@@ -519,7 +496,7 @@ int UVa_XY_APV_strip_to_channel(int strip){
 	};
 
 	if(strip >= 128){
-		std::cout << std::endl << " WARNING!!! APVs only have strips from 0 - 127. Cannot have strips >= 128." << std::endl;
+		std::cout << std::endl << " **TB** WARNING!!! APVs only have strips from 0 - 127. Cannot have strips >= 128." << std::endl;
 		UVa_XY_APV_channel = -99993;
 	}
 	else{
@@ -529,7 +506,7 @@ int UVa_XY_APV_strip_to_channel(int strip){
 	return UVa_XY_APV_channel;
 }
 
-int UVa_XY_APV_channel_to_strip(int channel){
+int UVa_XY_APV_channel_to_strip_TB(int channel){
 	int UVa_XY_APV_strip;
 	//Mapping for UVa XY GEM APV strip to channel
 	const int _mapped_strip_uva_xy[128] = {
@@ -549,7 +526,7 @@ int UVa_XY_APV_channel_to_strip(int channel){
 	};
 
 	if(channel >= 128){
-		std::cout << std::endl << " WARNING!!! APVs only have channels from 0 - 127. Cannot have channels >= 128." << std::endl;
+		std::cout << std::endl << " **TB** WARNING!!! APVs only have channels from 0 - 127. Cannot have channels >= 128." << std::endl;
 		UVa_XY_APV_strip = -99991;
 	}
 
@@ -559,7 +536,7 @@ int UVa_XY_APV_channel_to_strip(int channel){
 	return UVa_XY_APV_strip;
 }
 
-int INFN_XY_APV_strip_to_channel(int strip){
+int INFN_XY_APV_strip_to_channel_TB(int strip){
 	int INFN_XY_APV_channel;
 	//Mapping for UVa XY APV strip to channel
 	const int _mapped_strip_infn_xy[128] = {
@@ -580,7 +557,7 @@ int INFN_XY_APV_strip_to_channel(int strip){
 
 
 	if(strip >= 128){
-		std::cout << std::endl << " WARNING!!! APVs only have strips from 0 - 127. Cannot have strips >= 128." << std::endl;
+		std::cout << std::endl << " **TB** WARNING!!! APVs only have strips from 0 - 127. Cannot have strips >= 128." << std::endl;
 		INFN_XY_APV_channel = -99993;
 	}
 	else{
@@ -590,7 +567,7 @@ int INFN_XY_APV_strip_to_channel(int strip){
 	return INFN_XY_APV_channel;
 }
 
-int INFN_XY_APV_channel_to_strip(int channel){
+int INFN_XY_APV_channel_to_strip_TB(int channel){
 	int INFN_XY_APV_strip;
 	//Mapping for UVa XY GEM APV strip to channel
 	const int _mapped_strip_infn_xy[128] = {
@@ -610,7 +587,7 @@ int INFN_XY_APV_channel_to_strip(int channel){
 	};
 
 	if(channel >= 128){
-		std::cout << std::endl << " WARNING!!! APVs only have channels from 0 - 127. Cannot have channels >= 128." << std::endl;
+		std::cout << std::endl << " **TB** WARNING!!! APVs only have channels from 0 - 127. Cannot have channels >= 128." << std::endl;
 		INFN_XY_APV_strip = -99991;
 	}
 
@@ -620,32 +597,41 @@ int INFN_XY_APV_channel_to_strip(int channel){
 	return INFN_XY_APV_strip;
 }
 
-int GEM_channel_to_strip(int gemType, int channel){
+int GEM_channel_to_strip_TB(int gemType, int channel){
 	int lookup_strip = -99997;
 	if( gemType == 0 ){
-		lookup_strip = UVa_UV_APV_channel_to_strip(channel);
+		lookup_strip = UVa_UV_APV_channel_to_strip_TB(channel);
 	}
 	if( gemType == 1 ){
-		lookup_strip = UVa_XY_APV_channel_to_strip(channel);
+		lookup_strip = UVa_XY_APV_channel_to_strip_TB(channel);
 	}
 	if( gemType == 2 ){
-		lookup_strip = INFN_XY_APV_channel_to_strip(channel);
+		lookup_strip = INFN_XY_APV_channel_to_strip_TB(channel);
 	}
 	return lookup_strip;
 }
 
-int GEM_strip_to_channel(int gemType, int strip){
+int GEM_strip_to_channel_TB(int gemType, int strip){
 	int lookup_channel = -99998;
 	if( gemType == 0 ){
-		lookup_channel = UVa_UV_APV_strip_to_channel(strip);
+		lookup_channel = UVa_UV_APV_strip_to_channel_TB(strip);
 	}
 	if( gemType == 1 ){
-		lookup_channel = UVa_XY_APV_strip_to_channel(strip);
+		lookup_channel = UVa_XY_APV_strip_to_channel_TB(strip);
 	}
 	if( gemType == 2 ){
-		lookup_channel = INFN_XY_APV_strip_to_channel(strip);
+		lookup_channel = INFN_XY_APV_strip_to_channel_TB(strip);
 	}
 	return lookup_channel;
 }
 
+int channel_on_APV_to_module_strip_TB(int gemType, int chan, int APV){
+	int strip = GEM_channel_to_strip_TB(gemType, chan);
+	int first_APV_strip = APV*128;
+	int module_strip = first_APV_strip + strip;
+	
+	return module_strip;
+}
+
 #endif
+

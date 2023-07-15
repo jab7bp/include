@@ -1,4 +1,5 @@
-#include "/w/halla-scshelf2102/sbs/jboyd/xtalk/include/GEM_lookups.h"
+#ifndef GEM_LOOKUPS_H
+#define GEM_LOOKUPS_H
 
 #include <algorithm>
 
@@ -23,36 +24,6 @@ int lookup_config(int runnum){
 	else{ config = -99999; }
 
 	return config;
-}
-
-int lookup_config_by_kine(int kine){
-	if( kine == 4 || kine == 7 ){
-		config = 0;
-	}
-	if( kine == 11 ){
-		config = 1;
-	}
-	if( kine == 8 || kine == 9 || kine == 14 ){
-		config = 2;
-	}
-
-	return config;
-}
-
-int lookup_nModules_by_kine( int kine ){
-	config = lookup_config_by_kine( kine );
-
-	if( config == 0 ){
-		nModules_total = 12;
-	}
-	if( config == 1 ){
-		nModules_total = 10;
-	}
-	if( config == 2 ){
-		lookup_nModules_total = 8;
-	}
-
-	return nModules_total;
 }
 
 int lookup_GEM_type(int runnum, int layer){
@@ -151,7 +122,7 @@ int lookup_GEM_type_from_global_mod_num(int runnum, int mod){
 			gem_type = 0;
 		}
 		if( (mod == 4) || (mod == 5) || (mod == 6) || ( mod == 7 ) ){
-			gem_type = 2;
+			gem_type = 1;
 		}
 		if( mod > 7 ){
 			gem_type = -99900;
@@ -438,6 +409,12 @@ int strip_to_APV(int strip){
 	if( strip >= 3712 && strip <= 3839 ){ APV = 29; }
 	return APV;
 }
+int APV_to_strip(int APV){
+	int first_APV_strip = -1;
+	first_APV_strip = APV*128;
+
+	return first_APV_strip;
+}
 
 int UVa_UV_APV_strip_to_channel(int strip) {
 	int UV_APV_channel;
@@ -648,4 +625,13 @@ int GEM_strip_to_channel(int gemType, int strip){
 	return lookup_channel;
 }
 
+int channel_on_APV_to_module_strip(int gemType, int chan, int APV){
+	int strip = GEM_channel_to_strip(gemType, chan);
+	int first_APV_strip = APV*128;
+	int module_strip = first_APV_strip + strip;
+	
+	return module_strip;
+}
+
 #endif
+
