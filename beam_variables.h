@@ -1,6 +1,7 @@
 #ifndef BEAM_VARIABLES_H
 #define BEAM_VARIABLES_H
 #include <algorithm>
+#include <vector>
 
 TString target;
 double sbsdist = 2.25;
@@ -47,7 +48,7 @@ double lookup_beam_energy( int runnum ){
 		beam_energy = 5.965;
 	}
 	else if( runnum >= 13656 && runnum <= 13799 ){
-		beam_energy = 4.013;
+		beam_energy = 4.0268;
 	}
 	else{ beam_energy = -1.111; }
 
@@ -223,6 +224,7 @@ double lookup_HCal_angle_by_kine( int kine, TString type ){
 	if( type == "rad" ){
 		return HCal_angle*TMath::DegToRad();
 	}
+
 }
 
 double lookup_HCal_angle( int runnum ){
@@ -261,7 +263,7 @@ double lookup_BB_dist_by_kine( int kine ){
 		BB_dist = 1.85;
 	}
 	if( kine == 8 ){
-		BB_dist = 2.00;
+		BB_dist = 1.97473;
 	}
 	if( kine == 9 ){
 		BB_dist = 1.55;
@@ -384,6 +386,65 @@ TString lookup_target( int runnum ){
 	return target_lookup;
 }
 
+double lookup_ADC_diff_time( TString run_target, int kine, int sbsfieldscale, TString selection){
+	double lookup_val = -1;
+
+	double ADC_time_min = 45.0;
+	double ADC_time_max = 65.0;
+	double ADC_time_mean = 55.0;
+
+	// std::cout << "Selection: " << selection.Data() << endl;
+
+	if( selection == "ADC_diff_time_min" ){
+		lookup_val = ADC_time_min;
+	}
+	if( selection == "ADC_diff_time_max" ){
+		lookup_val = ADC_time_max;
+	}
+	if( selection == "ADC_diff_time_mean" ){
+		lookup_val = ADC_time_mean;
+	}
+
+	//kine, sbsfieldscale, ADC_min, ADC_max, ADC_mean
+	vector<vector<double>>ADC_times_LH2 = {
+		{4, 0, 45, 65, 55 },
+		{8, 0, 45, 65, 55 },
+		{9, 0, 45, 65, 55 },
+		{14, 0, 45, 65, 55 }
+	};
+	vector<vector<double>>ADC_times_LD2 = {
+		{4, 0, 45, 65, 55 },
+		{8, 0, 45, 65, 55 },
+		// {8, 70, 43.25, 51.5, 47.4319},
+		{8, 70, 43.5, 51., 47.4175},
+		{9, 0, 45, 65, 55 },
+		{9, 70, 48, 57, 52.5},
+		{14, 0, 45, 65, 55 }
+	};
+
+	if( run_target == "LH2" ){
+		for( size_t i = 0; i < ADC_times_LH2.size(); i++ ){
+			if( ADC_times_LH2[i][0] == kine && ADC_times_LH2[i][1] == sbsfieldscale ){
+				if( selection == "ADC_diff_time_min" ){lookup_val = ADC_times_LH2[i][2];}
+				if( selection == "ADC_diff_time_max" ){lookup_val = ADC_times_LH2[i][3];}
+				if( selection == "ADC_diff_time_mean" ){lookup_val = ADC_times_LH2[i][4];}
+			}
+		}
+	}
+	if( run_target == "LD2" ){
+		for( size_t i = 0; i < ADC_times_LD2.size(); i++ ){
+			if( ADC_times_LD2[i][0] == kine && ADC_times_LD2[i][1] == sbsfieldscale ){
+				if( selection == "ADC_diff_time_min" ){lookup_val = ADC_times_LD2[i][2];}
+				if( selection == "ADC_diff_time_max" ){lookup_val = ADC_times_LD2[i][3];}
+				if( selection == "ADC_diff_time_mean" ){lookup_val = ADC_times_LD2[i][4];}
+			}
+		}
+	}
+
+	return lookup_val;
+
+}
+
 double lookup_ADC_time_cut( TString run_target, int kine, int sbsfieldscale, TString selection){
 	double lookup_val = -1;
 
@@ -411,7 +472,9 @@ double lookup_ADC_time_cut( TString run_target, int kine, int sbsfieldscale, TSt
 	vector<vector<double>>ADC_times_LD2 = {
 		{4, 0, 45, 65, 55 },
 		{8, 0, 45, 65, 55 },
+		{8, 70, 40, 55, 47.5 },
 		{9, 0, 45, 65, 55 },
+		{9, 70, 43, 58, 50.5}, 
 		{14, 0, 45, 65, 55 }
 	};
 
@@ -426,7 +489,7 @@ double lookup_ADC_time_cut( TString run_target, int kine, int sbsfieldscale, TSt
 	}
 	if( run_target == "LD2" ){
 		for( size_t i = 0; i < ADC_times_LD2.size(); i++ ){
-			if( ADC_times_LH2[i][0] == kine && ADC_times_LD2[i][1] == sbsfieldscale ){
+			if( ADC_times_LD2[i][0] == kine && ADC_times_LD2[i][1] == sbsfieldscale ){
 				if( selection == "ADC_time_min" ){lookup_val = ADC_times_LD2[i][2];}
 				if( selection == "ADC_time_max" ){lookup_val = ADC_times_LD2[i][3];}
 				if( selection == "ADC_time_mean" ){lookup_val = ADC_times_LD2[i][4];}
@@ -466,6 +529,120 @@ double lookup_cut(int runnum, TString param){
 			if( param == "W" ){lookup_val = cuts[i][9];}
 			if( param == "W_sigma" ){lookup_val = cuts[i][10];}
 
+		}
+	}
+	return lookup_val;
+}
+
+
+double lookup_pre_parsed_cut(TString run_targ, int kine, TString param){
+	double lookup_val = -1;
+
+	int target_int;
+
+	if( run_targ == "LH2" ){
+		target_int = 0;
+	}
+	if( run_targ == "LD2" ){
+		target_int = 1;
+	}
+
+	//Cuts vector:
+// 	[0]target_int, [1]kine, [2]PS_clus_e_cut, [3]SH_PS_clus_e_cut, [4]SH_PS_sigma, [5]HCal_clus_e_cut, [6]Ep, [7]Ep_sigma, [8]W2, [9]W2_sigma, [10]W, [11]W_sigma, 
+	vector<vector<double>> pre_parsed_cuts = {
+		{1, 8, 0.200, 2.80228, 0.417005, 0.05, 9.60311e-01, 0.06, 8.41250e-01, 0.26, 9.50000e-01, 0.16},
+		{1, 9, 0.200, 1.48083, 2.12634e-01, 0.05, 1.04198, 1.33898e-01, 8.41250e-01, 0.26, 9.50000e-01, 0.16}
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
+
+	for( size_t i = 0; i < pre_parsed_cuts.size(); i++){
+		if( pre_parsed_cuts[i][0] == target_int && pre_parsed_cuts[i][1] == kine ){
+			if( param == "PS_clus_e_cut" ){lookup_val = pre_parsed_cuts[i][2];}
+			if( param == "SH_PS_clus_e_cut" ){lookup_val = pre_parsed_cuts[i][3];}
+			if( param == "SH_PS_sigma" ){lookup_val = pre_parsed_cuts[i][4];}
+			if( param == "HCal_clus_e_cut" ){lookup_val = pre_parsed_cuts[i][5];}
+			if( param == "Ep" ){lookup_val = pre_parsed_cuts[i][6];}
+			if( param == "Ep_sigma" ){lookup_val = pre_parsed_cuts[i][7];}
+			if( param == "W2" ){lookup_val = pre_parsed_cuts[i][8];}
+			if( param == "W2_sigma" ){lookup_val = pre_parsed_cuts[i][9];}
+			if( param == "W" ){lookup_val = pre_parsed_cuts[i][10];}
+			if( param == "W_sigma" ){lookup_val = pre_parsed_cuts[i][11];}
+
+		}
+	}
+	return lookup_val;
+}
+
+double lookup_parsed_cut(TString run_targ, int kine, int sbsfield, TString param){
+	double lookup_val = -1;
+
+	int target_int;
+
+	if( run_targ == "LH2" ){
+		target_int = 0;
+	}
+	if( run_targ == "LD2" ){
+		target_int = 1;
+	}
+
+	//Cuts vector:
+// 	[0]target_int, [1]kine, [2]sbs_field [3]PS_clus_e_cut, [4]SH_PS_mean, [5]SH_PS_sigma, [6]HCal_clus_e_cut, [7]Ep, [8]Ep_sigma, [9]W2, [10]W2_sigma, [11]W, [12]W_sigma, 
+	vector<vector<double>> parsed_cuts = {
+		{1, 8, 70, 0.200, 3.04626, 0.44096, 0.05, 0.96367, 0.0668529, 9.20000e-01, 0.31, 0.983, 0.1903, 3.1},
+		{1, 9, 70, 0.200, 1.48083, 2.12634e-01, 0.05, 0.96367, 0.0668529, 1.04198, 1.33898e-01, 0.983, 0.1903, 3.1}
+		
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-run_02
+
+	for( size_t i = 0; i < parsed_cuts.size(); i++){
+		if( parsed_cuts[i][0] == target_int && parsed_cuts[i][1] == kine && parsed_cuts[i][2] == sbsfield ){
+			if( param == "PS_clus_e_cut" ){lookup_val = parsed_cuts[i][3];}
+			if( param == "SH_PS_mean" ){lookup_val = parsed_cuts[i][4];}
+			if( param == "SH_PS_sigma" ){lookup_val = parsed_cuts[i][5];}
+			if( param == "HCal_clus_e_cut" ){lookup_val = parsed_cuts[i][6];}
+			if( param == "Ep" ){lookup_val = parsed_cuts[i][7];}
+			if( param == "Ep_sigma" ){lookup_val = parsed_cuts[i][8];}
+			if( param == "W2" ){lookup_val = parsed_cuts[i][9];}
+			if( param == "W2_sigma" ){lookup_val = parsed_cuts[i][10];}
+			if( param == "W" ){lookup_val = parsed_cuts[i][11];}
+			if( param == "W_sigma" ){lookup_val = parsed_cuts[i][12];}
+
+		}
+	}
+	return lookup_val;
+}
+
+double lookup_dxdy_by_kine_and_mag(TString run_targ, int kine, int sbsfield, TString param){
+	double lookup_val = -1;
+
+	int target_int;
+
+	if( run_targ == "LH2" ){
+		target_int = 0;
+	}
+	if( run_targ == "LD2" ){
+		target_int = 1;
+	}
+
+	//Cuts vector:
+// 	[0]target_int, [1]kine, [2]sbs_field, [3] dx_p, [4]dx_p_sigma, [5]dx_n, [6]dx_n_sigma, [7]dy, [8]dy_sigma 
+	vector<vector<double>> parsed_dxdy = {
+		{1, 8, 70, -9.25074e-01, 1.83060e-01, -6.44180e-02, 1.66322e-01, -1.59126e-03, 2.12280e-01},
+		{1, 9, 70, -8.69576e-01, 1.60000e-01, -3.79001e-03, 1.60000e-01, 4.22771e-02, 3.00000e-01}
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
+
+	for( size_t i = 0; i < parsed_dxdy.size(); i++){
+		if( parsed_dxdy[i][0] == target_int && parsed_dxdy[i][1] == kine && parsed_dxdy[i][2]){
+			if( param == "dx_p" ){lookup_val = parsed_dxdy[i][3];}
+			if( param == "dx_p_sigma" ){lookup_val = parsed_dxdy[i][4];}
+			if( param == "dx_n" ){lookup_val = parsed_dxdy[i][5];}
+			if( param == "dx_n_sigma" ){lookup_val = parsed_dxdy[i][6];}
+			if( param == "dy" ){lookup_val = parsed_dxdy [i][7];}
+			if( param == "dy_sigma" ){lookup_val = parsed_dxdy[i][8];}
 		}
 	}
 	return lookup_val;
