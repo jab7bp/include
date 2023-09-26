@@ -72,5 +72,46 @@ int FindIndexOfMaxElement( const double array[], int size ){
 
 }
 
+TH1D *make_residual_histo(TString identifier, TH1D *histo_1, TH1D *histo_2, bool match_bins = true, bool match_x_range = false ){
+
+	TString histo_1_name = histo_1->GetName();
+	Int_t Nbins_histo_1 = histo_1->GetNbinsX();
+	Double_t MinX_histo_1 = histo_1->GetXaxis()->GetXmin();
+	Double_t MaxX_histo_1 = histo_1->GetXaxis()->GetXmax();
+
+	TString histo_2_name = histo_2->GetName();
+	Int_t Nbins_histo_2 = histo_2->GetNbinsX();
+	Double_t MinX_histo_2 = histo_2->GetXaxis()->GetXmin();
+	Double_t MaxX_histo_2 = histo_2->GetXaxis()->GetXmax();
+
+	TH1D *resid_histo = new TH1D( "resid_histo", Form("Residual Histogram - %s: %s and %s", identifier.Data(), histo_1_name.Data(), histo_2_name.Data()), Nbins_histo_1, MinX_histo_1, MaxX_histo_1);
+
+	if( match_bins && (Nbins_histo_1 != Nbins_histo_2) ){
+		cout << "------------------------------------------------------" << endl;
+		cout << "------------------------------------------------------" << endl;
+		cout << "---- Histograms need to have matching bin numbers ----" << endl;
+		cout << "     Histo_1: " << Nbins_histo_1 << ", Histo_2: " << Nbins_histo_2 << endl;
+		cout << "------------------------------------------------------" << endl;
+		cout << "------------------------------------------------------" << endl;
+		return resid_histo;
+	}
+
+	if( match_x_range && (MinX_histo_1 != MinX_histo_2) && (MaxX_histo_1 != MaxX_histo_2 )){
+		cout << "------------------------------------------------------" << endl;
+		cout << "------------------------------------------------------" << endl;
+		cout << "----- Histograms need to have matching x ranges  -----" << endl;
+		cout << "Min X - Histo_1: " << MinX_histo_1 << ", Histo_2: " << MinX_histo_2 << endl;
+		cout << "Max X - Histo_1: " << MaxX_histo_1 << ", Histo_2: " << MaxX_histo_2 << endl;
+		cout << "------------------------------------------------------" << endl;
+		cout << "------------------------------------------------------" << endl;
+		return resid_histo;		
+	}
+
+	for( int bin = 0; bin < Nbins_histo_1; bin++ ){
+		resid_histo->SetBinContent( bin, histo_1->GetBinContent(bin) - histo_2->GetBinContent(bin) );
+	}
+
+	return resid_histo;
+}
 
 #endif

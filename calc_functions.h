@@ -157,35 +157,63 @@ double CalculateChiSquaredWithErrors(TH1* observed, TH1* expected) {
     return chiSquared;
 }
 
-double calculateHCalDetEff(int kine, TString nucleon ){
+double calculateHCalDetEff(int kine, TString nucleon, bool return_error = false ){
 
 	double hcal_det_eff = 0.0;
+	double hcal_det_eff_err = 0.0;
 
 	double p_nucl;
 	if( kine == 8 ){ p_nucl = 3.22; }
 	if( kine == 9 ){ p_nucl = 3.21; }
 
 	double a0 = 85.689454;
-	double a1 = 7.5699056;
-	double a2 = -1.8512754;
-	double a3 = 0.19593452;
-	double a4 = -0.007713635;
+	double a0_err = 0.41106;
 
+	double a1 = 7.5699056;
+	double a1_err = 0.421948;
+
+	double a2 = -1.8512754;
+	double a2_err = 0.145954;
+
+	double a3 = 0.19593452;
+	double a3_err = 0.0206016;
+
+	double a4 = -0.007713635;
+	double a4_err = 0.00101772;
+
+//------------------
 	double b0 = 79.3477;
+	double b0_err = 0.733834;
+
 	double b1 = 13.8929;
+	double b1_err = 0.796093;
+
 	double b2 = -3.60264;
+	double b2_err = 0.284625;
+
 	double b3 = 0.386701;
+	double b3_err = 0.0408757;
+
 	double b4 = -0.0152329;
+	double b4_err = 0.00203378;
 
 	if( nucleon == "n" ){
 		hcal_det_eff = a0 + (a1*p_nucl) + (a2*pow(p_nucl, 2)) + (a3*pow(p_nucl, 3) ) + (a4*pow(p_nucl, 4));
+		hcal_det_eff_err = sqrt( pow(a0_err, 2) + pow( p_nucl*a1_err, 2) + pow( pow(p_nucl, 2)*a2_err, 2) + pow( pow(p_nucl, 3)*a3_err, 3) + pow( pow(p_nucl, 4)*a4_err, 4));
 	}
 
 	if( nucleon == "p" ){
 		hcal_det_eff = b0 + (b1*p_nucl) + (b2*pow(p_nucl, 2)) + (b3*pow(p_nucl, 3) ) + (b4*pow(p_nucl, 4));
+		hcal_det_eff_err = sqrt( pow(b0_err, 2) + pow( p_nucl*b1_err, 2) + pow( pow(p_nucl, 2)*b2_err, 2) + pow( pow(p_nucl, 3)*b3_err, 3) + pow( pow(p_nucl, 4)*b4_err, 4));
 	}
 	
-	return hcal_det_eff/100.0;
+	if( return_error ){
+		return hcal_det_eff_err/100.0;
+	}
+	if( !return_error ){
+		return hcal_det_eff/100.0;		
+	}
+
 }
 
 int FindMinimumDifferenceBinInRange(TH1D* hist1, TH1D* hist2, double xMin, double xMax) {

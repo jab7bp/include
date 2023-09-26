@@ -91,7 +91,7 @@ double lookup_BB_angle_by_kine( int kine, TString type ){
 		BB_angle = 40.0;
 	}
 	if( kine == 8 ){
-		BB_angle = 46.5;
+		BB_angle = 26.5;
 	}
 	if( kine == 9 ){
 		BB_angle = 49.0;
@@ -416,7 +416,7 @@ double lookup_ADC_diff_time( TString run_target, int kine, int sbsfieldscale, TS
 		{4, 0, 45, 65, 55 },
 		{8, 0, 45, 65, 55 },
 		// {8, 70, 43.25, 51.5, 47.4319},
-		{8, 70, 43.5, 51., 47.4175},
+		{8, 70, 43.5, 53., 47.8},
 		{9, 0, 45, 65, 55 },
 		{9, 70, 48, 57, 52.5},
 		{14, 0, 45, 65, 55 }
@@ -472,7 +472,7 @@ double lookup_ADC_time_cut( TString run_target, int kine, int sbsfieldscale, TSt
 	vector<vector<double>>ADC_times_LD2 = {
 		{4, 0, 45, 65, 55 },
 		{8, 0, 45, 65, 55 },
-		{8, 70, 40, 55, 47.5 },
+		{8, 70, 38, 55, 47.5 },
 		{9, 0, 45, 65, 55 },
 		{9, 70, 43, 58, 50.5}, 
 		{14, 0, 45, 65, 55 }
