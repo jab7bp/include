@@ -10,6 +10,7 @@ public:
 
     TH2D *h2_chi2_dxdy_cutdy,*h2_chi2_dxdy_cutdy_SigmaMult;
 	double dx_global_scale_p, dx_global_scale_n, ChiSquared_low_x, ChiSquared_high_x;
+    double dx_global_scale_p_error, dx_global_scale_n_error;
     double dx_global_dy_cut_min, dx_global_dy_cut_max, ChiSquared_dy_cut_low_x, ChiSquared_dy_cut_high_x;
     double dx_trough_min, dx_trough_max, sim_dx_trough_integral;
     double dy_global_sigma_mult;
