@@ -14,10 +14,10 @@ const Double_t posHCalXf = 1.155; //Distance from beam center to bottom of HCal 
 const Double_t posHCalYi = -0.92964; //Distance from beam center to opposite-beam side of HCal in meters, from MC database
 const Double_t posHCalYf = 0.92964; //Distance from beam center to beam side of HCal in meters, from MC database
 
-const Double_t hcal_x_fmin = posHCalXi + 2.0*HCalblk_l_v;
-const Double_t hcal_x_fmax = posHCalXf - 2.0*HCalblk_l_v;
-const Double_t hcal_y_fmin = posHCalYi + 2.0*HCalblk_l_h;
-const Double_t hcal_y_fmax = posHCalYf - 2.0*HCalblk_l_h;
+const Double_t hcal_x_fmin = posHCalXi + 0.5*HCalblk_l_v;
+const Double_t hcal_x_fmax = posHCalXf - 0.5*HCalblk_l_v;
+const Double_t hcal_y_fmin = posHCalYi + 0.5*HCalblk_l_h;
+const Double_t hcal_y_fmax = posHCalYf - 0.5*HCalblk_l_h;
 	
 //Previous values used before Oct 2023.
 // const Double_t hcal_y_fmin = -0.75;
@@ -598,8 +598,11 @@ double lookup_pre_parsed_cut(TString run_targ, int kine, TString param){
 	//Cuts vector:
 // 	[0]target_int, [1]kine, [2]PS_clus_e_cut, [3]SH_PS_clus_e_cut, [4]SH_PS_sigma, [5]HCal_clus_e_cut, [6]Ep, [7]Ep_sigma, [8]W2, [9]W2_sigma, [10]W, [11]W_sigma, 
 	vector<vector<double>> pre_parsed_cuts = {
-		{1, 8, 0.200, 2.80228, 0.417005, 0.05, 9.60311e-01, 0.06, 8.41250e-01, 0.26, 9.50000e-01, 0.16},
-		{1, 9, 0.200, 1.48083, 2.12634e-01, 0.05, 1.04198, 1.33898e-01, 8.41250e-01, 0.26, 9.50000e-01, 0.16}
+		{0, 9, 70, 0.200, 1.24236, 0.232063, 0.05, 1.01220, 0.102237, 0.904105, 0.113001, 0.953148, 0.00593128},
+		{1, 4, 0.200, 1.57099, 0.264047, 0.005, 0.978222, 0.0815986, 8.88086e-01, 0.165, 0.955, 0.1108},
+		{1, 8, 0.200, 2.80228, 0.417005, 0.005, 9.60311e-01, 0.06, 8.41250e-01, 0.26, 9.50000e-01, 0.16},
+		{1, 9, 0.200, 1.48083, 2.12634e-01, 0.005, 1.04198, 1.33898e-01, 8.41250e-01, 0.26, 9.50000e-01, 0.16},
+		{1, 14, 0.200, 1.0, 0.155559, 0.005, 1.07439, 0.136613, 8.41250e-01, 0.26, 9.50000e-01, 0.16}
 	};
 	//	9.38724e-01 4.57268e-01
 //13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
@@ -637,9 +640,11 @@ double lookup_parsed_cut(TString run_targ, int kine, int sbsfield, TString param
 	//Cuts vector:
 // 	[0]target_int, [1]kine, [2]sbs_field [3]PS_clus_e_cut, [4]SH_PS_mean, [5]SH_PS_sigma, [6]HCal_clus_e_cut, [7]Ep, [8]Ep_sigma, [9]W2, [10]W2_sigma, [11]W, [12]W_sigma, 
 	vector<vector<double>> parsed_cuts = {
-		{1, 8, 70, 0.200, 3.04626, 0.44096, 0.05, 0.96367, 0.0668529, 9.20000e-01, 0.31, 0.983, 0.1903, 3.1},
-		{1, 9, 70, 0.200, 1.48083, 2.12634e-01, 0.05, 0.96367, 0.0668529, 1.04198, 1.33898e-01, 0.983, 0.1903, 3.1}
-		
+		{0, 9, 70, 0.200, 1.47127, 0.1700, 0.05, 1.01220, 0.102237, 0.903016, 0.114904, 0.955679, 0.0640582},
+		{1, 4, 0.200, 1.79639, 3.65091e-01, 0.005, 9.63486e-01, 6.56411e-02, 8.97512e-01, 2.18121e-01, 9.63732e-01, 1.20944e-01},
+		{1, 8, 70, 0.200, 3.04626, 0.44096, 0.05, 0.982880, 0.0772755, 9.20000e-01, 0.31, 0.983, 0.1903, 3.1},
+		{1, 9, 70, 0.200, 1.48083, 2.12634e-01, 0.05, 0.96367, 0.0668529, 1.04198, 1.33898e-01, 0.983, 0.1903, 3.1},
+		{1, 14, 70, 0.200, 1.32, 0.155559, 0.005, 1.07439, 0.136613, 8.41250e-01, 0.26, 9.50000e-01, 0.16}
 	};
 	//	9.38724e-01 4.57268e-01
 //13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-run_02
@@ -677,9 +682,11 @@ double lookup_dxdy_by_kine_and_mag(TString run_targ, int kine, int sbsfield, TSt
 	//Cuts vector:
 // 	[0]target_int, [1]kine, [2]sbs_field, [3] dx_p, [4]dx_p_sigma, [5]dx_n, [6]dx_n_sigma, [7]dy, [8]dy_sigma 
 	vector<vector<double>> parsed_dxdy = {
+		{0, 9, 70, -0.519794, 0.0876619, 0.0, 0.0, -0.0267544, 0.0853703},
 		// {1, 8, 70, -9.25074e-01, 1.83060e-01, -6.44180e-02, 1.66322e-01, -1.59126e-03, 2.12280e-01},
 		{1, 8, 70, -8.53383e-01, 2.23455e-01,  1.30135e-02, 1.74434e-01, -4.19000e-02, 2.44855e-01},
-		{1, 9, 70, -8.69576e-01, 1.60000e-01, -3.79001e-03, 1.60000e-01, 4.22771e-02, 3.00000e-01}
+		{1, 9, 70, -8.69576e-01, 1.60000e-01, -3.79001e-03, 1.60000e-01, 4.22771e-02, 3.00000e-01},
+		{1, 14, 70, -8.69576e-01, 1.60000e-01, -3.79001e-03, 1.60000e-01, 4.22771e-02, 3.00000e-01}
 	};
 	//	9.38724e-01 4.57268e-01
 //13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02

@@ -1,13 +1,40 @@
 #ifndef PLOT_AND_FIT_FUNCS_H
 #define PLOT_AND_FIT_FUNCS_H
 
+#include "/work/halla/sbs/jboyd/include/FF_classes.h"
+
 TLegend *tl_dx_mag0, *tl_dx_mag, *tl_dy_mag, *tl_dx_mag_dyBG;
 TF1 *tf_data_dx_p, *tf_data_dx_n;
 TF1 *tf_dx_bg, *fit_dx_dyBG, *fit_polBG_with_reject, *fit_dx, *fit_dx_origBG;
 TF1 *tf_BG_dx_pol4, *tf_BG_dx_pol5, *tf_BG_dx_pol6, *tf_BG_dx_pol8;
 TF1 *tf_BG_dx_wcut_pol4, *tf_BG_dx_wcut_pol5, *tf_BG_dx_wcut_pol6, *tf_BG_dx_wcut_pol8;
 Double_t par_BG_reject[5], par_dy_bg_reject[5], parPoly[9], parPol8[9], parPol2[3], parPol3[4], parPol4[5], parPol5[6], parPol6[7], parPol7[8], parElastics[6];
+Double_t par_jb_yield[15];
 Double_t dx_total_fit_par[10];
+
+struct MaxTF1ValuePair{
+	Double_t x;
+	Double_t y;
+};
+
+MaxTF1ValuePair FindMaxTF1ValueInXRange(Double_t x_min, Double_t x_max, TF1 *fitFunc) {
+    MaxTF1ValuePair result;
+    result.y = -1.0;  // Initialize the maximum y-value to a very low value
+    result.x = x_min; // Initialize the corresponding x-value to the lower boundary
+
+    // Step size for x evaluation
+    Double_t step = 0.1; // Adjust the step size as needed
+
+    for (Double_t x = x_min; x <= x_max; x += step) {
+        Double_t y = fitFunc->Eval(x); // Evaluate the fit function at x
+        if (y > result.y) {
+            result.y = y; // Update the maximum y-value
+            result.x = x; // Update the corresponding x-value
+        }
+    }
+
+    return result;
+}
 
 Double_t background_pol2(Double_t *x, Double_t *parPol2){
 	return parPol2[0] + parPol2[1]*x[0] + parPol2[2]*x[0]*x[0];
@@ -346,6 +373,8 @@ Int_t set_tcg_ellipse(double h, double k, double a, double b, TCutG *tcg){
 	return cnt;
 }
 
+
+
 void dyAnticut_and_dxBG_fit( kine_ff_extract& SBSkine ){
 
 	double BG_prescale_factor = 0.48;
@@ -364,7 +393,6 @@ void dyAnticut_and_dxBG_fit( kine_ff_extract& SBSkine ){
 
 	TF1 *tf_dx_dyAntiCut, *tf_data_dx_dyAntiCut_BG_scaled;
 
-
 	if( BG_polN == 2){
 		tf_dx_dyAntiCut = new TF1("tf_dx_dyAntiCut", background_pol2, xaxis_min, xaxis_max, 3);
 		tf_data_dx_dyAntiCut_BG_scaled = new TF1("tf_data_dx_dyAntiCut_BG_scaled", background_pol2, xaxis_min, xaxis_max, 3);
@@ -382,11 +410,25 @@ void dyAnticut_and_dxBG_fit( kine_ff_extract& SBSkine ){
 
 	h_dx_dyAntiCut->Fit("tf_dx_dyAntiCut", "R+");
 
+	h_dx_dyAntiCut->GetXaxis()->SetRangeUser(-2.0, 1.0);
+	h_dx_dyAntiCut->Draw();
+
+	double antiCutBG_max_x = FindMaxTF1ValueInXRange(-2.5, 0, tf_dx_dyAntiCut).x;
+	double antiCutBG_max_y = FindMaxTF1ValueInXRange(-2.5, 0, tf_dx_dyAntiCut).y;
+
+	TPaveText *tpt_antiCutBG = new TPaveText(0.60, 0.63, 0.89, 0.70, "NDC");
+	tpt_antiCutBG->SetFillColor(0);
+	tpt_antiCutBG->SetBorderSize(1);
+	tpt_antiCutBG->AddText(Form("x-value of Anti-Cut BG max: %0.2f", antiCutBG_max_x));
+	tpt_antiCutBG->Draw("same");
+
 	//Now we need to scale up the BG fit to the scale of the original BG from the total fit:
 	//We get our scale factor by looking at the pure scalar p0 coefficient:
-	// double antiCut_BGscale_factor = SBSkine.tf_data_dx_total->GetParameter(6)/tf_dx_dyAntiCut->GetParameter(0);
+	// double antiCut_BGscale_factor = SBSkine.tf_data_dx_total->GetParameter(6)/tf_dx_dyAntiCut->GetParametermeter(0);
 
 	double antiCut_BGscale_factor = BG_prescale_factor*SBSkine.h_data->GetBinContent(SBSkine.h_data->FindBin(-1.75))/tf_dx_dyAntiCut->Eval(-1.75);
+
+	SBSkine.antiCut_BGscale_factor = antiCut_BGscale_factor;
 
 	cout << "-----------------------------------------------" << endl;
 	cout << "Scaling dyAntiCut by: " << antiCut_BGscale_factor << endl;
@@ -414,7 +456,9 @@ void fit_dyAnticut_and_BGsub( kine_ff_extract& SBSkine){
 	int sbsfieldscale = SBSkine.sbsfieldscale;
 	TString run_target = SBSkine.run_target;
 
-	TCanvas *c_anticut = new TCanvas("c_anticut", "c_anticut", 600, 500);
+	double parTotalDX[12], parInelasticBG[5];
+
+	TCanvas *c_anticut_BG = new TCanvas(Form("c_anticut_BG_SBS%i", kine), Form("c_anticut_BG_SBS%i", kine), 600, 500);
 
 	int BG_polN = SBSkine.dx_dyAnticut_BG_polN;
 
@@ -434,11 +478,16 @@ void fit_dyAnticut_and_BGsub( kine_ff_extract& SBSkine){
 	double dx_plot_min = -2;
 	double dx_plot_max = 1.0;
 
-	double dy_mult = 3.0;
+	// double dy_mult = 3.0;
+	double dy_mult = SBSkine.dy_mult;
+	
 	Double_t dy_min = dy_mean - (dy_mult)*dy_sigma;
 	Double_t dy_max = dy_mean + (dy_mult)*dy_sigma;
 
-	TH1D *h_dx_dyAntiCut, *h_dx_dyBGsub;
+	// Double_t dy_min = hcal_y_fmin;
+	// Double_t dy_max = hcal_y_fmax;
+
+	TH1D *h_dx_dyAntiCut, *h_dx_dyBGsub, *h_simu_dx_inelastic_BGsub;
 	TH1D *h_dx_final_form = (TH1D*)SBSkine.h_data->Clone("h_dx_final_form");
 	TH2D *h_dxdy = SBSkine.h_data_dxdy;
 	TH2D *h_dxdy_dyAntiCut;
@@ -498,6 +547,8 @@ void fit_dyAnticut_and_BGsub( kine_ff_extract& SBSkine){
 
 	h_dx_final_form->Fit("dx_total_fit", "R+");
 
+	dx_total_fit->GetParameters(parTotalDX);
+
 	SBSkine.tf_data_dx_total = dx_total_fit;
 
 	TF1 *tf_dx_pinit = new TF1("tf_dx_pinit", fit_gaus, dx_plot_min, dx_plot_max, 3);
@@ -547,7 +598,7 @@ void fit_dyAnticut_and_BGsub( kine_ff_extract& SBSkine){
 
 //Let's set the region within the p and n peak regions to 0.
 //We can use the values provided for dy_min and dy_max (these should correspond to some sigma parameter scaling of the dy_plot)
-	h_dxdy_dyAntiCut = new TH2D("h_dxdy_dyAntiCut", "dxdy plot with p and n peak regions set to zero", xbins, xaxis_min, xaxis_max, ybins, yaxis_min, yaxis_max);
+	h_dxdy_dyAntiCut = new TH2D("h_dxdy_dyAntiCut", Form("SBS%i, dxdy plot with p and n peak regions set to zero", kine ), xbins, xaxis_min, xaxis_max, ybins, yaxis_min, yaxis_max);
 
 	for( int binx = 1; binx <= xbins; binx++ ){
 		Double_t binCenter = xaxis->GetBinCenter(binx);
@@ -590,10 +641,175 @@ void fit_dyAnticut_and_BGsub( kine_ff_extract& SBSkine){
 	h_dx_dyBGsub->SetMinimum(0);
 	SBSkine.h_data_dx_BGsub = h_dx_dyBGsub;
 
+//BG subtractiong using BG from SIMULATED fS
+
+	double inelastic_BG_prescale_factor;
+
+	if( kine == 8 ){
+		inelastic_BG_prescale_factor = 0.30; //Larger value subtracts more of background
+	} 
+
+	if( kine == 9 ){
+		inelastic_BG_prescale_factor = 0.30; //Larger value subtracts more of background
+	} 
+
+	double p0_polN = 0.0, p1_polN = 0.0, p2_polN = 0.0, p3_polN = 0.0, p4_polN = 0.0, p5_polN = 0.0, p6_polN = 0.0;
+
+	//POL4\
+
+	bool anticut_reject = true;	
+
+	if( kine == 8 ){
+		// p0_polN = 1.397305E-06;
+		// p1_polN = -3.843112E-07;
+		// p2_polN = -3.247071E-07;
+		// p3_polN = 5.124419E-08;
+		// p4_polN = 2.109683E-08;	
+
+	//Standard SBS8
+		if( !anticut_reject ){
+			p0_polN = 3.528615E-6;
+			p1_polN = -6.199597E-7;
+			p2_polN = -7.858640E-7;
+			p3_polN = -7.841976E-8;
+			p4_polN = -2.393615E-8;			
+		}
+	
+	//Anti-cut  REJECT SBS8
+		if( anticut_reject ){
+			p0_polN = 8.057751E-8;
+			p1_polN = -5.472070E-8;
+			p2_polN = -3.724526E-8;
+			p3_polN = 2.321695E-8;
+			p4_polN = 1.085256E-8;				
+		}
+	
+	}
+
+	//POL4
+	if( kine == 9 ){
+	//Standard SBS9
+		if( !anticut_reject ){
+			p0_polN = 5.012767E-4;
+			p1_polN = -5.505446E-5;
+			p2_polN = -1.041700E-4;
+			p3_polN = -4.349415E-5;
+			p4_polN = -1.802386E-5;				
+		}
+	
+	//Anti-cut  REJECT	SBS9
+		if( anticut_reject ){
+			// p0_polN = 3.769987E-5;
+			// p1_polN = -1.952493E-5;
+			// p2_polN = -1.691958E-5;
+			// p3_polN = 5.788091E-6;
+			// p4_polN = 3.215968E-6;		
+
+			p0_polN = 5.62155e-05;
+			p1_polN = -2.61026e-05;
+			p2_polN = -2.37012e-05;
+			p3_polN = 6.49918e-06;
+			p4_polN = 3.84644e-06;				
+		}
+
+	}
+
+
+	TF1 *tf_inelasticBG = new TF1("tf_inelasticBG", "pol4", -2.5, 2.5);
+	tf_inelasticBG->SetNpx(500);
+	tf_inelasticBG->FixParameter(0, p0_polN);
+	tf_inelasticBG->FixParameter(1, p1_polN);
+	tf_inelasticBG->FixParameter(2, p2_polN);
+	tf_inelasticBG->FixParameter(3, p3_polN);
+	tf_inelasticBG->FixParameter(4, p4_polN);
+
+	TH1D *h_simu_dx_inelastic_BGhisto = (TH1D*)tf_inelasticBG->GetHistogram();
+	SBSkine.h_simu_dx_inelastic_BGhisto = h_simu_dx_inelastic_BGhisto;
+
+	SBSkine.tf_inelasticBG = tf_inelasticBG;
+
+	double inelastic_BGscale_factor = inelastic_BG_prescale_factor*SBSkine.h_data->GetBinContent(SBSkine.h_data->FindBin(-1.75))/tf_inelasticBG->Eval(-1.75);	
+
+	TF1 *tf_inelasticBG_scaled = new TF1("tf_inelasticBG_scaled", "pol4", -2.5, 2.5);
+	tf_inelasticBG_scaled->SetNpx(500);
+	tf_inelasticBG_scaled->FixParameter(0, inelastic_BGscale_factor*p0_polN);
+	tf_inelasticBG_scaled->FixParameter(1, inelastic_BGscale_factor*p1_polN);
+	tf_inelasticBG_scaled->FixParameter(2, inelastic_BGscale_factor*p2_polN);
+	tf_inelasticBG_scaled->FixParameter(3, inelastic_BGscale_factor*p3_polN);
+	tf_inelasticBG_scaled->FixParameter(4, inelastic_BGscale_factor*p4_polN);
+	SBSkine.tf_inelasticBG_scaled = tf_inelasticBG_scaled;
+
+	TH1D *h_simu_dx_inelastic_BGhisto_scaled = (TH1D*)tf_inelasticBG_scaled->GetHistogram();
+
+	SBSkine.h_simu_dx_inelastic_BGhisto_scaled = h_simu_dx_inelastic_BGhisto_scaled;
+
+	//SIMU INELASTIC BACKGROUND SUBTRACTION
+
+	h_simu_dx_inelastic_BGsub = new TH1D("h_simu_dx_inelastic_BGsub", "Data dx with simu Inelastic BG subtracted", ybins, yaxis_min, yaxis_max);
+	cout << "Inelastic BG fit nbins: " << h_simu_dx_inelastic_BGhisto_scaled->GetNbinsX() << endl;
+	cout << "dx final form nbins: " << h_dx_final_form->GetNbinsX() << endl;
+	for( int bin = 1; bin <= h_simu_dx_inelastic_BGhisto_scaled->GetNbinsX(); bin++ ){
+		h_simu_dx_inelastic_BGsub->SetBinContent(bin, h_dx_final_form->GetBinContent(bin) - h_simu_dx_inelastic_BGhisto_scaled->GetBinContent(bin) );
+	}
+	h_simu_dx_inelastic_BGsub->GetXaxis()->SetRangeUser(yaxis_min, yaxis_max);
+	h_simu_dx_inelastic_BGsub->SetMinimum(0);
+	SBSkine.h_simu_dx_inelastic_BGsub = h_simu_dx_inelastic_BGsub;
+
 }
 
 
+Double_t jb_yield_fit(Double_t *x, Double_t *par_jb_yield){
 
+	// TString fit_style = "gaus+pol";
+	// TString fit_style = "pol_only";
+	TString fit_style = "rangedGaus+pol";
+
+	Double_t gaus = 0.0;
+	Double_t pol = 0.0;
+	Double_t jb_fit = 0.0;
+
+	if( fit_style == "gaus+pol" ){
+		gaus = par_jb_yield[0]*exp((-0.5)*pow(((x[0] -  par_jb_yield[1])/par_jb_yield[2]),2));	
+		int gausPolN = 8;
+
+		for( int i = 0; i < gausPolN; i++ ){
+			pol += par_jb_yield[i+3]*pow( x[0], i);
+		}
+
+		jb_fit = gaus + pol;		
+	}
+
+	if( fit_style == "pol_only" ){
+		int polOnlyN = 10;
+
+		for( int i = 0; i < polOnlyN; i++ ){
+			pol += par_jb_yield[i]*pow( x[0], i);
+		}
+
+		jb_fit = gaus + pol;			
+	}
+
+	if( fit_style == "rangedGaus+pol" ){
+
+		double gaus_min_x = -1.2044930;
+		double gaus_max_x = -0.56218100;
+		int gausPolN = 8;
+
+		if( x[0] >= gaus_min_x && x[0] <= gaus_max_x ){
+			gaus = par_jb_yield[0]*exp((-0.5)*pow(((x[0] -  par_jb_yield[1])/par_jb_yield[2]),2));				
+		}
+		else{
+			for( int i = 0; i < gausPolN; i++ ){
+				pol += par_jb_yield[i+3]*pow( x[0], i);
+			}			
+		}
+
+		jb_fit = gaus + pol;		
+	}
+
+	return jb_fit;
+
+}
 
 
 #endif
