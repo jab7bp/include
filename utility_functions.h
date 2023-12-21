@@ -580,5 +580,29 @@ void addHistogramToRootFile(const char* fileName, TH1* histogram, const char* di
     delete rootFile;
 }
 
+double IntegralPostiveValsOnlyInRangeX(TH1* histogram, double x_min, double x_max) {
+    // Get the histogram's x-axis
+    TAxis* xAxis = histogram->GetXaxis();
+
+    int binMin = xAxis->FindBin(x_min);
+    int binMax = xAxis->FindBin(x_max);
+
+    // Get the number of bins
+    int numBins = xAxis->GetNbins();
+
+    // Initialize the sum
+    double sum = 0.0;
+
+    // Loop over the bins and sum the positive values
+    for (int bin = binMin; bin <= binMax; ++bin) {
+        double binContent = histogram->GetBinContent(bin);
+        if (binContent > 0) {
+            sum += histogram->GetBinContent(bin);
+        }
+    }
+
+    return sum;
+}
+
 
 #endif

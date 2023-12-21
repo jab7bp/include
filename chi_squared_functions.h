@@ -77,8 +77,10 @@ double CalculateChiSquaredInRangeByScale_BGsub(const cl_chi2_histo& cl_dx_chi2_d
     TH1D *hin_dx_BGsub_cutdy = cl_dx_chi2_data_simc_BGsub.data_dx_BGsub_histo;
     TH1D *h_simc_dx_p = cl_dx_chi2_data_simc_BGsub.sim_dx_p_histo;
     TH1D *h_simc_dx_n = cl_dx_chi2_data_simc_BGsub.sim_dx_n_histo;
+
     double ChiSquared_low_x = cl_dx_chi2_data_simc_BGsub.ChiSquared_low_x;
     double ChiSquared_high_x = cl_dx_chi2_data_simc_BGsub.ChiSquared_high_x; 
+
     vector<double> *chiSquaredByScaleValues = cl_dx_chi2_data_simc_BGsub.chiSquaredByScaleValues;
     double chiSquared = 0.0;
 
@@ -344,5 +346,29 @@ double SimpleCalculateChiSquared(TH1D* observed, TH1D* expected) {
     }
 
     return chi2;
+}
+
+double SimpleCalculateChiSquared_InRange(TH1D* observed, TH1D* expected, double min_x, double max_x) {
+    
+    double chiSquared = 0.0;
+
+    int low_bin = observed->GetXaxis()->FindBin(min_x);
+    int high_bin = expected->GetXaxis()->FindBin(max_x);
+
+    // for (int bin = 1; bin <= hin_dx_BGsub_cutdy->GetNbinsX(); ++bin) {
+    for (int bin = low_bin; bin <= high_bin; ++bin) {
+        double content_data = observed->GetBinContent(bin);
+        double content_expected = expected->GetBinContent(bin);
+
+        double error_data = observed->GetBinError(bin);
+
+        if (error_data > 0.0) {
+            double residual = content_data - content_expected;
+            chiSquared += (residual * residual) / (error_data * error_data);
+        }
+    }
+
+
+    return chiSquared;
 }
 #endif

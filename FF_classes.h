@@ -7,6 +7,8 @@ class kine_ff_extract {
 	TString run_target;
 	int kine, sbsfieldscale;
 
+	bool use_dy_anticut_BGsub, use_inelastic_BGsub;
+
 	TH1D *h_data;
 	TH1D *h_data_BeforeScaling;
 	TH1D *h_data_dx_dyAntiCut;
@@ -51,7 +53,11 @@ class kine_ff_extract {
 	double R;
 	double Rcorr;
 
+	double mc_n_sigma, mc_p_sigma, mc_np_sigma_ratio;
+
 	double BGsub_min_chiSquared, BGsub_min_chiSquared_ndf, BGsub_min_chiSquared_err, BGsub_min_chiSquared_ndf_err;
+
+	double final_dataBGsub_simc_chiSquared;
 
 	//To calculate the approximate ratio of n/p in the data histogram we can form the relation between the total integral and n/p ratios
 	//       ( total data dx integral )	            ( total sim dx integral)
@@ -113,8 +119,6 @@ class kine_ff_extract {
 	double GEp_param;
 	double GMp_param;
 	double GMn_param;
-	double GMn;
-	double GMn_norm;
 
 	double tau_p;
 	double tau_n;
@@ -132,6 +136,14 @@ class kine_ff_extract {
 
 	double sigma_r_p;
 	double G_D;
+	double Q2;
+	double mott_CS;
+	double theta_e;
+	double theta_e_deg;
+	double E_beam;
+	double e_scat_momentum;
+	double mu_n;
+	double mu_p;
 
 ////---------- SAME VARIABLES BUT USING Q2, EBEAM, ETC FROM DATA HISTOGRAMS
 	double p_yield_data;
@@ -172,6 +184,14 @@ class kine_ff_extract {
 	double sigma_r_p_data;
 
 	double G_D_data;
+
+	//VARIABLES TO HOLD THE FORM FACTOR CALCULATIONS
+	double GMn_theory, GMn_theory_error;
+	double GMn, GMn_err;
+	double GMn_norm, GMn_norm_err;
+	double GEn, GEn_err;
+	double GMp, GMp_err;
+	double GEp, GEp_err;
 
 };
 

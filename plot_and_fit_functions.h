@@ -376,8 +376,23 @@ Int_t set_tcg_ellipse(double h, double k, double a, double b, TCutG *tcg){
 
 
 void dyAnticut_and_dxBG_fit( kine_ff_extract& SBSkine ){
+	
+	int kine = SBSkine.kine;
 
-	double BG_prescale_factor = 0.48;
+	//dy anticut prescale factor
+	double BG_prescale_factor;
+
+	if( kine == 4 ){
+		BG_prescale_factor = 0.65; //Higher value should take more of the background off
+	}
+
+	if( kine == 8 ){
+		BG_prescale_factor = 0.5; //Higher value should take more of the background off
+	}
+
+	if( kine == 9 ){
+		BG_prescale_factor = 0.48; //0.48; //Higher value should take more of the background off
+	}
 
 	cout << "Using dxdy dyAntiCut and finding BG fit " << endl;
 
@@ -646,18 +661,18 @@ void fit_dyAnticut_and_BGsub( kine_ff_extract& SBSkine){
 	double inelastic_BG_prescale_factor;
 
 	if( kine == 8 ){
-		inelastic_BG_prescale_factor = 0.30; //Larger value subtracts more of background
+		inelastic_BG_prescale_factor = 0.50; //Larger value subtracts more of background
 	} 
 
 	if( kine == 9 ){
-		inelastic_BG_prescale_factor = 0.30; //Larger value subtracts more of background
+		inelastic_BG_prescale_factor = 0.10; //Larger value subtracts more of background
 	} 
 
 	double p0_polN = 0.0, p1_polN = 0.0, p2_polN = 0.0, p3_polN = 0.0, p4_polN = 0.0, p5_polN = 0.0, p6_polN = 0.0;
 
 	//POL4\
 
-	bool anticut_reject = true;	
+	bool anticut_reject = false;	
 
 	if( kine == 8 ){
 		// p0_polN = 1.397305E-06;
@@ -810,6 +825,7 @@ Double_t jb_yield_fit(Double_t *x, Double_t *par_jb_yield){
 	return jb_fit;
 
 }
+
 
 
 #endif
