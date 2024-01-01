@@ -551,6 +551,41 @@ void shiftHistogram(TH1D* hist, Double_t x_shift) {
     delete shiftedHist;
 }
 
+void shiftHistogram_by_kine( TH1D *histo_to_shift, int kine ){
+
+    if( kine == 4 ){
+        shiftHistogram(histo_to_shift, 0.04);
+    }
+
+    if( kine == 8 ){
+        shiftHistogram(histo_to_shift, 0.03);
+    }
+
+    // if( kine == 9 ){
+    //     // shiftHistogram(hin_dx_cutdy, 0.03);
+    // }
+
+}
+
+TH1D *make_shifted_histogram( TH1D *histo_to_shift, int kine ){
+
+    TString histo_name = histo_to_shift->GetName();
+    TString histo_title = histo_to_shift->GetTitle();
+
+    TH1D *shifted_histogram = (TH1D*)histo_to_shift->Clone(histo_name.Data());
+    shifted_histogram->SetTitle( histo_title.Data() );
+    
+    if( kine == 4 ){
+        shiftHistogram(shifted_histogram, 0.04);
+    }
+
+    if( kine == 8 ){
+        shiftHistogram(shifted_histogram, 0.03);
+    } 
+
+    return shifted_histogram;
+}
+
 void addHistogramToRootFile(const char* fileName, TH1* histogram, const char* directoryName) {
     // Open the ROOT file in update mode, creating it if it doesn't exist
     TFile* rootFile = new TFile(fileName, "UPDATE");
