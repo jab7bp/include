@@ -18,7 +18,100 @@
 	// 	SBSkine.dx_dyAnticut_BG_polN = BG_polN;
 	// }
 
+TF1 *fit_and_get_inelastic_BG_fit_from_file( cl_SBSkine& SBSkine, bool anticut_reject = false, bool inelastic_BG_wcut = false, double fit_x_min = -2.0, double fit_x_max = 1.0){
+
+	int kine = SBSkine.kine;
+	int sbsfieldscale = SBSkine.sbsfieldscale;
+	TString magmod = SBSkine.magmod;
+	TString file_date = "";
+
+	Double_t dy_mean = SBSkine.dy_mean;
+	Double_t dy_sigma = SBSkine.dy_sigma;
+
+	double dy_mult = SBSkine.dy_mult;
+	Double_t dy_min = dy_mean - (dy_mult)*dy_sigma;
+	Double_t dy_max = dy_mean + (dy_mult)*dy_sigma;	
+
+	TString I_beam_str = "";
+
+	if( kine == 4 ){
+		I_beam_str = "0175";
+		file_date = "21_12_2023";
+	}
+	if( kine == 8 ){
+		I_beam_str = "0500";
+		file_date = "21_12_2023";
+	}
+
+	if( kine == 9 ){
+		I_beam_str = "1200";
+		file_date = "06_01_2024";
+	}
+
+	TString rootfile_dir = "/w/halla-scshelf2102/sbs/jboyd/analysis/gmn/MC/rootfiles";
+	TString filename = Form("MC_BACKGROUND_SBS%i_LD2_mag%imod%s_%suA_dxdy_%s.root", kine, sbsfieldscale, magmod.Data(), I_beam_str.Data(), file_date.Data());
+
+	TFile *BG_infile = new TFile(Form("%s/%s", rootfile_dir.Data(), filename.Data()), "READ" );
+
+	TString h_BG_dx_name = "";
+	TH1D *h_BG_dx;
+	TH2D *h_BG_dxdy;
+
+	TF1 *tf_dx_inelasticsBG_fit = new TF1("tf_dx_inelasticsBG_fit", "pol4", fit_x_min, fit_x_max);
+
+	if( anticut_reject == false && inelastic_BG_wcut == false ){
+		h_BG_dx_name = "h_BG_dx";
+		h_BG_dx = (TH1D*)(BG_infile->Get("h_BG_dx"))->Clone("h_BG_dx");
+		h_BG_dx->GetXaxis()->SetRangeUser(fit_x_min, fit_x_max);
+
+		for( int par = 0; par < 4; par++ ){
+			tf_dx_inelasticsBG_fit->SetParName( par, Form("inelastic_BG_dx_p%i", par));
+		}
+
+		// h_BG_dx->Draw();
+		h_BG_dx->Fit("tf_dx_inelasticsBG_fit", "RMSE0+");
+	}
+
+	if( anticut_reject == true ){
+		h_BG_dxdy = (TH2D*)(BG_infile->Get("h_BG_dxdy"))->Clone("h_BG_dxdy");
+		h_BG_dxdy->GetXaxis()->SetRangeUser(dy_min, dy_max);
+		h_BG_dx = (TH1D*)h_BG_dxdy->ProjectionY();
+		h_BG_dx->GetXaxis()->SetRangeUser(fit_x_min, fit_x_max);
+
+		h_BG_dx->SetName("h_BG_dx");
+		h_BG_dx->SetTitle("h_BG_dx_with_dyAnticut");
+
+		for( int par = 0; par < 4; par++ ){
+			tf_dx_inelasticsBG_fit->SetParName( par, Form("inelastic_BG_with_dyAnticut_dx_p%i", par));
+		}
+
+		// h_BG_dx->Draw();
+		h_BG_dx->Fit("tf_dx_inelasticsBG_fit", "RMSE0+");
+	}
+
+	cout << "Finished extracting inelastic fit from BG file: " << endl;
+	cout << filename.Data() << endl;
+
+	return tf_dx_inelasticsBG_fit;
+
+}
+
+vector<double> get_pN_polN_vec_from_TF1_fit_to_file( cl_SBSkine& SBSkine, bool anticut_reject = false, bool inelastic_BG_wcut = false, double fit_x_min = -2.0, double fit_x_max = 1.0){
+
+	TF1 *tf_bg_fit = fit_and_get_inelastic_BG_fit_from_file( SBSkine, anticut_reject, inelastic_BG_wcut, fit_x_min, fit_x_max);
+	int polN = tf_bg_fit->GetNpar();
+
+	vector<double> pN_polN_vec = {};
+
+	for( int par = 0; par < polN; par++ ){
+		pN_polN_vec.push_back( tf_bg_fit->GetParameter(par) );
+	}
+
+	return pN_polN_vec;
+}
+
 vector<double> get_pN_polN_vec( int kine = 8, bool anticut_reject = false, bool inelastic_BG_wcut = false ){
+
 
 	vector<double> pN_polN_vec = {};
 
@@ -100,6 +193,8 @@ TH1D *subtract_histograms( TH1D *h_primary, TH1D *h_to_sub, TString cust_histo_n
 		cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
 		cout << "To take the difference between two histograms they must have the same nBinsX" << endl;
 		cout << "N bins - h_primary: " << n_bins_primary << ", h_to_sub: " << n_bins_secondary << endl;
+		cout << "h_primary name: " << h_primary->GetName() << endl;
+		cout << "h_to_sub name: " << h_to_sub->GetName() << endl;
 		cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
 		cout << "Sleeping to allow for a ctrl-c catch..." << endl;
 		sleep(20);
@@ -127,6 +222,51 @@ TH1D *subtract_histograms( TH1D *h_primary, TH1D *h_to_sub, TString cust_histo_n
 	}	
 
 	return h_difference;
+
+}
+
+TH1D *subtract_histograms_positive_values_only( TH1D *h_primary, TH1D *h_to_sub, TString cust_histo_name = "", TString cust_histo_ID = "" ){
+
+	int n_bins_primary = h_primary->GetNbinsX();
+	int n_bins_secondary = h_to_sub->GetNbinsX();
+
+	if( n_bins_primary != n_bins_secondary ){
+		cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
+		cout << "To take the difference between two histograms they must have the same nBinsX" << endl;
+		cout << "N bins - h_primary: " << n_bins_primary << ", h_to_sub: " << n_bins_secondary << endl;
+		cout << "-*-*-*-*-*-*-*-*-*-*-*-*-*-*" << endl;
+		cout << "Sleeping to allow for a ctrl-c catch..." << endl;
+		sleep(20);
+		cout << "Exiting...." << endl;
+		exit(1);	
+	}
+
+	double histo_x_min = h_primary->GetXaxis()->GetXmin();
+	double histo_x_max = h_primary->GetXaxis()->GetXmax();
+
+	TString histo_name = "h_difference";
+	if( cust_histo_name != "" ){
+		histo_name = cust_histo_name.Data();
+	}
+
+	TString histo_ID = h_primary->GetName();
+	if( cust_histo_ID != "" ){
+		histo_ID = cust_histo_ID.Data();
+	}
+
+	TH1D *h_pos_difference = new TH1D(histo_name.Data(), histo_ID.Data(), n_bins_primary, histo_x_min, histo_x_max );
+
+	double difference = 0.0;
+
+	for( int bin = 1; bin <= n_bins_primary; bin++ ){
+		difference = 0.0;
+		difference = h_primary->GetBinContent(bin) - h_to_sub->GetBinContent(bin);
+		if( difference >= 0.0 ){
+			h_pos_difference->SetBinContent(bin, h_primary->GetBinContent(bin) - h_to_sub->GetBinContent(bin) );
+		}
+	}	
+
+	return h_pos_difference;
 
 }
 
@@ -159,8 +299,11 @@ TF1 *get_dx_total_fit( TH1D *h_dx, cl_SBSkine& SBSkine, TString identifier = "",
 	Double_t xaxis_max = xaxis->GetXmax();
 
 //Let's draw the histogram and do the total fit with p_gaus + n_gaus + BG_polN:
-	TCanvas *c_get_total_dx = new TCanvas( Form("c_get_total_dx%s", identifier.Data()), Form("c_get_total_dx%s", identifier.Data()), 600, 500);
-	h_dx->Draw();
+	if( false ){
+		TCanvas *c_get_total_dx = new TCanvas( Form("c_get_total_dx%s", identifier.Data()), Form("c_get_total_dx%s", identifier.Data()), 600, 500);
+		h_dx->Draw();		
+	}
+
 
 	TF1 *tf_get_total_dx_fit = new TF1("tf_get_total_dx_fit", fit_full_dx_peaks_with_pol4BG, plot_xmin, plot_xmax, BG_polN + 7 );
 	tf_get_total_dx_fit->SetNpx( h_dx->GetNbinsX() );
@@ -386,6 +529,7 @@ TF1 *fit_dyAnticut_BG( TH1D *h_dx_dyAntiCut = NULL ){
 	tpt_dyAntiCut_fit->SetFillColor(0);
 	tpt_dyAntiCut_fit->SetBorderSize(1);
 	tpt_dyAntiCut_fit->AddText(Form("x-value of Anti-Cut BG max: %0.2f", antiCutBG_max_x));
+	c_dx_dyAntiCut_fit->cd();
 	tpt_dyAntiCut_fit->Draw("same");
 
 	return tf_dx_dyAntiCut;
@@ -436,7 +580,19 @@ TF1 *scale_dyAnticut_by_TF1_eval_MaxMin( cl_SBSkine& SBSkine, double total_dx_x_
 	if( identifier != "" ){ identifier.Prepend("_"); }
 
 	int kine = SBSkine.kine;
-	double dyAnticut_prescale_factor = 0.48; //larger value subtracts more BG from data
+
+	double dyAnticut_prescale_factor;
+
+	if( kine == 4 ){
+		dyAnticut_prescale_factor = 0.25867812; //Larger number subtracts more background from data.
+	}
+	if( kine == 8 ){
+		dyAnticut_prescale_factor = 0.32276110; //Larger number subtracts more background from data.
+	}
+	if( kine == 9 ){
+		dyAnticut_prescale_factor = 0.260803; //0.48; //0.218666; //0.11132874; //Larger number subtracts more background from data.
+	}
+
 	double plot_xmin = -2.0;
 	double plot_xmax = 1.0;
 
@@ -535,7 +691,15 @@ TF1 *scale_dyAnticut_by_ScalarCoeff( cl_SBSkine& SBSkine, double total_dx_fit_Sc
 TH1D *make_inelastic_dx_histo( int kine, bool anticut_reject = false, bool inelastic_BG_wcut = false ){
 	//We need to create a background histogram using the inelastic fits
 	//Get the fit parameters from the function get_pN_polN_vec:
-	vector< double> pN_polN_vec = get_pN_polN_vec( kine, false, false );
+	// get_pN_polN_vec(kine = 8,anticut_reject, inelastic_BG_wcut)
+	vector< double> pN_polN_vec;
+
+	if( kine == 9 ){
+		pN_polN_vec = get_pN_polN_vec( kine, true, false );		
+	}
+	else{
+		pN_polN_vec = get_pN_polN_vec( kine, false, false );		
+	}
 
 	double plot_xmin = -2.0;
 	double plot_xmax = 1.0;
@@ -552,9 +716,39 @@ TH1D *make_inelastic_dx_histo( int kine, bool anticut_reject = false, bool inela
 	return h_make_dx_inelastics_histo;
 }
 
+TH1D *make_inelastic_dx_histo_from_BGfile( cl_SBSkine& SBSkine, bool anticut_reject = false, bool inelastic_BG_wcut = false ){
+	
+	int kine = SBSkine.kine;
+
+	//We need to create a background histogram using the inelastic fits
+	//Get the fit parameters from the function get_pN_polN_vec:
+	// get_pN_polN_vec(kine = 8,anticut_reject, inelastic_BG_wcut)
+	vector< double> pN_polN_vec;
+	double plot_xmin = -2.0;
+	double plot_xmax = 1.0;
+
+	if( kine == 9 ){
+		pN_polN_vec = get_pN_polN_vec_from_TF1_fit_to_file( SBSkine, false, false, plot_xmin, plot_xmax );		
+	}
+	else{
+		pN_polN_vec = get_pN_polN_vec_from_TF1_fit_to_file( SBSkine, false, false, plot_xmin, plot_xmax );		
+	}
+
+	TF1 *tf_make_dx_inelastics_histo = new TF1("tf_make_dx_inelastics_histo", "pol4", plot_xmin, plot_xmax );
+	tf_make_dx_inelastics_histo->SetNpx(500);
+
+	for( int BG_par = 0; BG_par < 5; BG_par++ ){
+		tf_make_dx_inelastics_histo->FixParameter( BG_par, pN_polN_vec[BG_par] );
+	}
+
+	TH1D *h_make_dx_inelastics_histo = (TH1D*)tf_make_dx_inelastics_histo->GetHistogram();
+
+	return h_make_dx_inelastics_histo;
+}
+
 TF1 *fit_inelastics_BG( TH1D *h_dx_inelastics = NULL ){
 	if( h_dx_inelastics == NULL ){
-		cout << "ERROR IN fit_dyAnticut_BG...." << endl;
+		cout << "ERROR IN fit_inelastics...." << endl;
 		cout << "h_dx_inelastics must be sent to function and CAN NOT BE NULL" << endl;
 		exit(1);
 	}
@@ -569,8 +763,10 @@ TF1 *fit_inelastics_BG( TH1D *h_dx_inelastics = NULL ){
 	Double_t xaxis_min = xaxis->GetXmin();
 	Double_t xaxis_max = xaxis->GetXmax();	
 
-	TCanvas *c_dx_inelastics_fit = new TCanvas("c_dx_inelastics_fit", "c_dx_inelastics_fit", 600, 500);
-	h_dx_inelastics->Draw();
+	if( false ){
+		TCanvas *c_dx_inelastics_fit = new TCanvas("c_dx_inelastics_fit", "c_dx_inelastics_fit", 600, 500);
+		h_dx_inelastics->Draw();		
+	}
 
 	TF1 *tf_dx_inelastics = new TF1("tf_dx_inelastics", background_pol4, xaxis_min, xaxis_max, 5);
 	tf_dx_inelastics->SetNpx( h_dx_inelastics->GetNbinsX() );
@@ -596,7 +792,7 @@ TF1 *scale_inelastics_by_TF1_eval( cl_SBSkine& SBSkine, double total_dx_x_eval =
 	if( identifier != "" ){ identifier.Prepend("_"); }
 
 	int kine = SBSkine.kine;
-	double inelastics_prescale_factor = 0.30;
+	double inelastics_prescale_factor = 0.40; //higher number should remove more BG
 	double plot_xmin = -2.0;
 	double plot_xmax = 1.0;
 
@@ -636,7 +832,15 @@ TF1 *scale_inelastics_by_TF1_eval_MaxMin( cl_SBSkine& SBSkine, double total_dx_x
 	if( identifier != "" ){ identifier.Prepend("_"); }
 
 	int kine = SBSkine.kine;
-	double inelastics_prescale_factor = 0.48;
+	double inelastics_prescale_factor;
+
+	if( kine == 8 ){
+		inelastics_prescale_factor = 0.50437188; //Larger number subtracts more background from data.
+	}
+	if( kine == 9 ){
+		inelastics_prescale_factor = 0.504; //0.315359; //0.308942; //0.347967; //0.31546166; //Larger number subtracts more background from data.
+	}
+
 	double plot_xmin = -2.0;
 	double plot_xmax = 1.0;
 

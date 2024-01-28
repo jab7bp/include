@@ -149,4 +149,63 @@ double CalculateFunctionErrorAtX( vector<double> coeff, vector<double> coeff_err
     return sqrt(sigma_f_x);
 }
 
+double calc_GMn_err( double CErr_tau_n, double CErr_eps_n, double CErr_scale_n, double CErr_scale_n_err, double CErr_scale_p, double CErr_scale_p_err, double CErr_sigma_n_MC, double CErr_sigma_n_MC_err, double CErr_GEn, double CErr_GEn_err, double return_err = 1 ){
+    double R_scale, R_scale_err, R_sigma_term, R_sigma_term_err;
+    double eps_GEn_term, eps_GEn_term_err;
+    double GMn_squared, GMn_err_squared, CErr_GMn, CErr_GMn_err;
+
+    double denominator;
+    double delta_R_term, delta_R_numer;
+    double delta_sig_term, delta_sig_numer;
+    double delta_G_term, delta_G_numer;
+
+    R_scale = CErr_scale_n/CErr_scale_p;
+    R_scale_err = CalculateErrorMultiplicationDivision( CErr_scale_n, CErr_scale_n_err, CErr_scale_p, CErr_scale_p_err, R_scale );
+
+    denominator = 2*CErr_tau_n*sqrt( (1/CErr_tau_n)*( (R_scale*CErr_sigma_n_MC) - (CErr_eps_n*CErr_GEn*CErr_GEn)));
+
+    delta_R_numer = CErr_sigma_n_MC*R_scale_err;
+    delta_R_term = delta_R_numer/denominator;
+
+    delta_sig_numer = R_scale*CErr_sigma_n_MC_err;
+    delta_sig_term = delta_sig_numer/denominator;
+
+    delta_G_numer = 2*CErr_eps_n*CErr_GEn*CErr_GEn_err;
+    delta_G_term = delta_G_numer/denominator;
+
+    GMn_err_squared = pow(delta_R_term, 2) + pow(delta_sig_term, 2) + pow(delta_G_term, 2);
+    CErr_GMn_err = sqrt( GMn_err_squared );
+
+    GMn_squared = (1/CErr_tau_n)*( (R_scale*CErr_sigma_n_MC) - (CErr_eps_n*CErr_GEn*CErr_GEn));
+    CErr_GMn = sqrt( GMn_squared );
+
+    if( return_err ){
+        return CErr_GMn_err;        
+    }
+    else{
+        return CErr_GMn;
+    }
+}
+
+double calc_sigma_R_n_bosted_Err(double CErr_eps_n, double CErr_GEn_bosted, double CErr_GEn_bosted_err, double CErr_tau_n, double CErr_GMn_bosted, double CErr_GMn_bosted_err, int return_err = 1 ){
+    double GEn_term, GEn_term_err, GMn_term, GMn_term_err;
+    double Sigma_R_n_bosted, Sigma_R_n_bosted_err;
+
+    GEn_term = CErr_eps_n*CErr_GEn_bosted*CErr_GEn_bosted;
+    GEn_term_err = CErr_eps_n*2*CErr_GEn_bosted*CErr_GEn_bosted_err;
+
+    GMn_term = CErr_tau_n*CErr_GMn_bosted*CErr_GMn_bosted;
+    GMn_term_err = CErr_tau_n*2*CErr_GMn_bosted*CErr_GMn_bosted_err;
+
+    Sigma_R_n_bosted = GEn_term + GMn_term;
+    Sigma_R_n_bosted_err = sqrt( pow(GEn_term_err, 2) + pow(GMn_term_err, 2) );
+
+    if( return_err ){
+        return Sigma_R_n_bosted_err;       
+    }
+    else{
+        return Sigma_R_n_bosted;
+    }
+}
+
 #endif

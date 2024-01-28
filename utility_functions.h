@@ -558,12 +558,12 @@ void shiftHistogram_by_kine( TH1D *histo_to_shift, int kine ){
     }
 
     if( kine == 8 ){
-        shiftHistogram(histo_to_shift, 0.03);
+        shiftHistogram(histo_to_shift, 0.00);
     }
 
-    // if( kine == 9 ){
-    //     // shiftHistogram(hin_dx_cutdy, 0.03);
-    // }
+    if( kine == 9 ){
+        shiftHistogram(histo_to_shift, 0.00);
+    }
 
 }
 
@@ -639,5 +639,94 @@ double IntegralPostiveValsOnlyInRangeX(TH1* histogram, double x_min, double x_ma
     return sum;
 }
 
+
+TH1D* convertHistogramTo500Bins(const TH1D* sourceHistogram, const char* newHistogramName) {
+    // Determine the number of bins in the source histogram
+    int currentBins = sourceHistogram->GetNbinsX();
+    
+    // Determine the desired number of bins
+    int targetBins = 500;
+
+    // Create a new histogram with the desired number of bins
+    TH1D* targetHistogram = new TH1D(newHistogramName, "", targetBins, sourceHistogram->GetXaxis()->GetBinLowEdge(1), sourceHistogram->GetXaxis()->GetBinUpEdge(currentBins));
+
+    // Loop over the new bins and interpolate/average content from the original bins
+    for (int i = 1; i <= targetBins; ++i) {
+        double newBinCenter = targetHistogram->GetXaxis()->GetBinCenter(i);
+        int bin = sourceHistogram->GetXaxis()->FindFixBin(newBinCenter);
+        targetHistogram->SetBinContent(i, sourceHistogram->GetBinContent(bin));
+    }
+
+    return targetHistogram;
+}
+
+
+TH1D* createHistogramWithDoubleBinWidth(const TH1D* originalHist) {
+    // Get information from the original histogram
+    int originalBins = originalHist->GetNbinsX();
+    double originalXmin = originalHist->GetXaxis()->GetXmin();
+    double originalXmax = originalHist->GetXaxis()->GetXmax();
+
+    // Create a new histogram with double the bin width
+    int newBins = originalBins / 2;
+    double newBinWidth = (originalXmax - originalXmin) / newBins;
+    TH1D* newHist = new TH1D("newHist", "Histogram with Double Bin Width", newBins, originalXmin, originalXmax + newBinWidth);
+
+    // Fill the new histogram with data from the original histogram
+    for (int i = 1; i <= newBins; ++i) {
+        double binContent = 0.0;
+        double binError = 0.0;
+
+        // Combine adjacent bins in the original histogram
+        for (int j = 0; j < 2; ++j) {
+            int originalBin = 2 * (i - 1) + 1 + j;
+            binContent += originalHist->GetBinContent(originalBin);
+            binError += originalHist->GetBinError(originalBin) * originalHist->GetBinError(originalBin);
+        }
+
+        binError = sqrt(binError);
+
+        // Set the bin content and error in the new histogram
+        newHist->SetBinContent(i, binContent);
+        newHist->SetBinError(i, binError);
+    }
+
+    return newHist;
+}
+
+TH1D* createHistogramWithCustomBinWidth(const TH1D* originalHist, double binWidthMultiplier) {
+    // Get information from the original histogram
+    int originalBins = originalHist->GetNbinsX();
+    double originalXmin = originalHist->GetXaxis()->GetXmin();
+    double originalXmax = originalHist->GetXaxis()->GetXmax();
+
+    // Calculate the number of bins for the new histogram
+    int newBins = originalBins / binWidthMultiplier;
+    double newBinWidth = (originalXmax - originalXmin) / newBins;
+
+    // Create a new histogram with custom bin width
+    TH1D* newHist = new TH1D("newHist", "Histogram with Custom Bin Width", newBins, originalXmin, originalXmax + newBinWidth);
+
+    // Fill the new histogram with data from the original histogram
+    for (int i = 1; i <= newBins; ++i) {
+        double binContent = 0.0;
+        double binError = 0.0;
+
+        // Combine adjacent bins in the original histogram
+        for (int j = 0; j < binWidthMultiplier; ++j) {
+            int originalBin = binWidthMultiplier * (i - 1) + 1 + j;
+            binContent += originalHist->GetBinContent(originalBin);
+            binError += originalHist->GetBinError(originalBin) * originalHist->GetBinError(originalBin);
+        }
+
+        binError = sqrt(binError);
+
+        // Set the bin content and error in the new histogram
+        newHist->SetBinContent(i, binContent);
+        newHist->SetBinError(i, binError);
+    }
+
+    return newHist;
+}
 
 #endif

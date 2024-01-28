@@ -14,6 +14,11 @@ const Double_t posHCalXf = 1.155; //Distance from beam center to bottom of HCal 
 const Double_t posHCalYi = -0.92964; //Distance from beam center to opposite-beam side of HCal in meters, from MC database
 const Double_t posHCalYf = 0.92964; //Distance from beam center to beam side of HCal in meters, from MC database
 
+// const Double_t posHCalXi = -2.355005; //Distance from beam center to top of HCal in meters, from database
+// const Double_t posHCalXf = 1.454995; //Distance from beam center to bottom of HCal in meters, from database
+// const Double_t posHCalYi = -0.92964; //Distance from beam center to opposite-beam side of HCal in meters, from MC database
+// const Double_t posHCalYf = 0.92964; //Distance from beam center to beam side of HCal in meters, from MC database
+
 const Double_t hcal_x_fmin = posHCalXi + 0.5*HCalblk_l_v;
 const Double_t hcal_x_fmax = posHCalXf - 0.5*HCalblk_l_v;
 const Double_t hcal_y_fmin = posHCalYi + 0.5*HCalblk_l_h;
@@ -155,7 +160,8 @@ double lookup_BB_angle_by_kine( int kine, TString type ){
 		return BB_angle;
 	}
 
-	if( type == "rad" ){
+	//type == "rad"
+	else{
 		return BB_angle*TMath::DegToRad();
 	}
 }
@@ -212,7 +218,8 @@ double lookup_SBS_angle_by_kine( int kine, TString type ){
 		return SBS_angle;
 	}
 
-	if( type == "rad" ){
+	//type == "rad"
+	else{ 
 		return SBS_angle*TMath::DegToRad();
 	}
 }
@@ -269,7 +276,8 @@ double lookup_HCal_angle_by_kine( int kine, TString type ){
 		return HCal_angle;
 	}
 
-	if( type == "rad" ){
+	//type == "rad"
+	else{
 		return HCal_angle*TMath::DegToRad();
 	}
 
@@ -647,8 +655,9 @@ double lookup_parsed_cut(TString run_targ, int kine, int sbsfield, TString param
 		{0, 9, 70, 0.200, 1.47127, 0.1700, 0.05, 1.01220, 0.102237, 0.903016, 0.114904, 0.955679, 0.0640582},
 		{1, 4, 30, 0.200, 1.94683, 2.11979e-01, 0.005, 9.84721e-01, 6.96694e-02, 9.47334e-01, 2.21838e-01, 9.86774e-01, 1.20471e-01},
 		// {1, 4, 30, 0.200, 1.79639, 3.65091e-01, 0.005, 9.63486e-01, 6.56411e-02, 9.20000e-01, 0.31, 0.983, 0.1903, 3.1},
-		{1, 8, 70, 0.200, 2.89899, 3.91567e-01, 0.05, 1.00580, 7.24263e-02, 0.879844, 3.56055e-01, 0.940, 0.1903, 3.1},
-		{1, 9, 70, 0.200, 1.48083, 2.12634e-01, 0.05, 0.96367, 0.0668529, 1.04198, 1.33898e-01, 0.983, 0.1903, 3.1},
+		{1, 8, 70, 0.200, 2.89899, 3.91567e-01, 0.05, 1.00580, 7.24263e-02, 0.879844, 3.56055e-01, 0.940, 0.1903},
+		// {1, 9, 70, 0.200, 1.48083, 2.12634e-01, 0.05, 0.96367, 0.0668529, 1.04198, 1.33898e-01, 0.983, 0.1903, 3.1},
+		{1, 9, 70, 0.200, 1.49022, 2.05452e-01, 0.05, 1.01343, 9.37999e-02, 9.75183e-01, 3.30889e-01, 1.01290, 1.66679e-01},
 		{1, 14, 70, 0.200, 1.32, 0.155559, 0.005, 1.07439, 0.136613, 8.41250e-01, 0.26, 9.50000e-01, 0.16}
 	};
 	//	9.38724e-01 4.57268e-01
