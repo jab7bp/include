@@ -194,6 +194,127 @@ void FillVectorByFilesAndDirWithPattern(const char* folderPath, const TString& p
     }
 }
 
+
+bool CompareFilenames(const TString& filename1, const TString& filename2) {
+    int val1_start = filename1.Last('_')+1;
+    int val1_end = filename1.Last('.') - 1;
+    int val1_length = val1_end - val1_start;
+
+    int val2_start = filename2.Last('_')+1;
+    int val2_end = filename2.Last('.') - 1;
+    int val2_length = val2_end - val2_start;
+ 
+    TString digits1 = filename1(val1_start, val1_length);
+    TString digits2 = filename2(val2_start, val2_length);
+
+    // TString digits1 = filename1(filename1.Length() - 8, 4);
+    // TString digits2 = filename2(filename2.Length() - 8, 4);
+
+    return digits1.Atoi() < digits2.Atoi();
+}
+
+// bool compareByNumber(const TString& str1, const TString& str2) {
+//     // Find the position of the last underscore and the dot before the extension
+//     int val1_start = str1.Last('_');
+//     int val1_end = str1.Last('.') - 1;
+//     int val1_length = val1_end - val1_start;
+
+//     int val2_start = str2.Last('_');
+//     int val2_end = str2.Last('.') - 1;
+//     int val2_length = val2_end - val2_start;
+ 
+//     TString digits1 = str1(val1_start, val1_length);
+//     TString digits2 = str2(val2_start, val2_length);
+
+//     int num1 = digits1.Atoi();
+//     int num2 = digits2.Atoi();
+    
+//     // Compare the numbers
+//     return num1 < num2;
+// }
+
+// bool compareByStringNumber(const TString& str1, const TString& str2) {
+//     // Find the position of the last underscore and the dot before the extension
+//     Ssiz_t pos1 = str1.Last('_');
+//     Ssiz_t pos2 = str2.Last('_');
+//     Ssiz_t dotPos1 = str1.Last('.');
+//     Ssiz_t dotPos2 = str2.Last('.');
+    
+//     // Extract the numbers from the substrings
+//     TString numStr1 = str1(pos1 + 1, dotPos1 - pos1 - 1);
+//     TString numStr2 = str2(pos2 + 1, dotPos2 - pos2 - 1);
+    
+//     // Compare the numbers as strings
+//     return numStr1.CompareTo(numStr2) < 0;
+// }
+
+// Function to extract number from string
+int extractNumber(const TString& str) {
+    Ssiz_t pos = str.Last('_');
+    Ssiz_t dotPos = str.Last('.');
+    TString numStr = str(pos + 1, dotPos - pos - 1);
+    return numStr.Atoi();
+}
+
+// Custom comparison function
+bool compareStringsByLastNumber(const TString& str1, const TString& str2) {
+    int num1 = extractNumber(str1);
+    int num2 = extractNumber(str2);
+    
+    return num1 < num2;
+}
+
+
+void FillTwoVectorsByFilesInTwoDirsWithPatternAndSort(const TString& lookupPattern, const TString& dir1, const TString& dir2, std::vector<TString>& files1, std::vector<TString>& files2) {
+    //Made for systematics analysis
+    //Looks to pull a data and simc file that have the same systematics cut. 
+    //The filenames are the same here but located in different locations.
+    //The last four digits after the last underscore should match between each file
+    //The last four digits correspond to some specific cut value or range.
+    //Could be modified to accept two values separated by an underscore --> Represents a range or window of values
+
+    //Will fill two pre-created vectors. 
+
+    // Clear the vectors
+    files1.clear();
+    files2.clear();
+
+    // Get the list of files in dir1
+    TSystemDirectory sysDir1(dir1, dir1);
+    // Get the list of files in dir2
+    TSystemDirectory sysDir2(dir2, dir2);
+
+    TList *filesList1 = sysDir1.GetListOfFiles();
+    TList *filesList2 = sysDir2.GetListOfFiles();
+
+    if (filesList1) {
+        filesList1->Sort(&CompareFilenames); // Sort the list by last 4 digits
+        TSystemFile *file;
+        TString filename;
+        TIter next(filesList1);
+        while ((file = (TSystemFile*)next())) {
+            filename = file->GetName();
+            // cout << "Data filename: " << filename.Data() << endl;
+            if (!file->IsDirectory() && filename.EndsWith(".root")) {
+                TString lastFourDigits = filename(filename.Length() - 8, 4);
+                TString partnerFilename = Form("%s/%s", dir2.Data(), filename.Data());
+                // partnerFilename[partnerFilename.Length() - 8, 4] = lastFourDigits; // Replace last 4 digits
+                if (gSystem->AccessPathName(partnerFilename) || !partnerFilename.Contains(lookupPattern))
+                    continue;
+                files1.push_back(dir1 + "/" + filename);
+                files2.push_back(partnerFilename);
+            }
+        }
+    }
+
+    sort(files1.begin(), files1.end(), compareStringsByLastNumber);
+    sort(files2.begin(), files2.end(), compareStringsByLastNumber);
+
+    // Clean up
+    delete filesList1;
+}
+
+
 bool CompareStringsWithNumbers(TString s1, TString s2)
 {
  
@@ -209,6 +330,30 @@ bool CompareStringsWithNumbers(TString s1, TString s2)
     // number of digits first
     else {
         return s1.Length() < s2.Length();
+    }
+}
+
+bool CompareStringsByLastNumberAfterUnderscore(TString s1, TString s2){
+    //First we get the positions of the last underscores for both strings
+    Ssiz_t s1_lastUnderscorePos = s1.Last('_');
+    Ssiz_t s2_lastUnderscorePos = s2.Last('_');
+
+    TString s1_valueString = s1(s1_lastUnderscorePos + 1, s1.Last('.') - s1_lastUnderscorePos - 1 );
+    TString s2_valueString = s2(s2_lastUnderscorePos + 1, s2.Last('.') - s2_lastUnderscorePos - 1 );
+    
+    //Convert those values to a double:
+    double s1_extractedValue = s1_valueString.Atof();
+    double s2_extractedValue = s2_valueString.Atof();
+
+    //Compare....
+    // If size of the value is the same (shouldn't be), put s1 first I guess...
+    if( s1_extractedValue == s2_extractedValue ){
+        return s1 < s2;
+    }
+
+    //otherwise, return the true lower value anyhow
+    else{
+        return s1_extractedValue < s2_extractedValue;
     }
 }
 
@@ -551,21 +696,39 @@ void shiftHistogram(TH1D* hist, Double_t x_shift) {
     delete shiftedHist;
 }
 
-void shiftHistogram_by_kine( TH1D *histo_to_shift, int kine ){
+void shiftHistogram_by_kine( TH1D *histo_to_shift, int kine, bool systematics_mode = false ){
 
-    if( kine == 4 ){
-        shiftHistogram(histo_to_shift, 0.04);
+    if( systematics_mode ){
+         if( kine == 4 ){
+            shiftHistogram(histo_to_shift, 0.05);
+        }
+
+        if( kine == 8 ){
+            shiftHistogram(histo_to_shift, .00);
+        }
+
+        if( kine == 9 ){
+            shiftHistogram(histo_to_shift, -0.01);
+        }   
+    }
+    else{
+
+        if( kine == 4 ){
+            shiftHistogram(histo_to_shift, 0.00);
+        }
+
+        if( kine == 8 ){
+            shiftHistogram(histo_to_shift, 0.02);
+        }
+
+        if( kine == 9 ){
+            shiftHistogram(histo_to_shift, -0.025);
+        }   
     }
 
-    if( kine == 8 ){
-        shiftHistogram(histo_to_shift, 0.00);
-    }
-
-    if( kine == 9 ){
-        shiftHistogram(histo_to_shift, 0.00);
-    }
 
 }
+
 
 TH1D *make_shifted_histogram( TH1D *histo_to_shift, int kine ){
 
@@ -696,6 +859,8 @@ TH1D* createHistogramWithDoubleBinWidth(const TH1D* originalHist) {
 
 TH1D* createHistogramWithCustomBinWidth(const TH1D* originalHist, double binWidthMultiplier) {
     // Get information from the original histogram
+    double original_maximum = originalHist->GetMaximum();
+
     int originalBins = originalHist->GetNbinsX();
     double originalXmin = originalHist->GetXaxis()->GetXmin();
     double originalXmax = originalHist->GetXaxis()->GetXmax();
@@ -719,14 +884,185 @@ TH1D* createHistogramWithCustomBinWidth(const TH1D* originalHist, double binWidt
             binError += originalHist->GetBinError(originalBin) * originalHist->GetBinError(originalBin);
         }
 
-        binError = sqrt(binError);
+        binError = sqrt(0.03*newBins*binError);
 
         // Set the bin content and error in the new histogram
         newHist->SetBinContent(i, binContent);
         newHist->SetBinError(i, binError);
     }
+    double new_maximum = newHist->GetMaximum();
+    double normalize_scale_factor = original_maximum/new_maximum;
+
+    newHist->Scale(normalize_scale_factor);
 
     return newHist;
 }
+
+int findTextFileLineNumberWithCustomString(const TString& filename, const TString& searchText) {
+    std::ifstream inputFile(filename.Data());
+
+    if (!inputFile.is_open()) {
+        std::cerr << "Error: Unable to open the file " << filename.Data() << std::endl;
+        return -1; // Return -1 to indicate an error
+    }
+
+    TString line;
+    int lineNumber = 0;
+
+    while (inputFile.good()) {
+        line.ReadLine(inputFile);
+        lineNumber++;
+
+        // Check if the line contains the search text
+        if (line.Contains(searchText)) {
+            inputFile.close();
+            return lineNumber;
+        }
+    }
+
+    inputFile.close();
+
+    // Return -1 if the search text is not found
+    return -1;
+}
+
+bool replaceTextInLine(const TString& filename, int lineNumber, const TString& newText) {
+    std::ifstream inputFile(filename.Data());
+
+    if (!inputFile.is_open()) {
+        std::cerr << "Error: Unable to open the file " << filename.Data() << std::endl;
+        return false; // Return false to indicate an error
+    }
+
+    TString line;
+    TString fileContent;
+    int currentLineNumber = 0;
+
+    while (inputFile.good()) {
+        line.ReadLine(inputFile);
+        currentLineNumber++;
+
+        // Check if this is the line to replace
+        if (currentLineNumber == lineNumber) {
+            line = newText;
+        }
+
+        fileContent += line + "\n"; // Add a newline character after each line
+    }
+
+    inputFile.close();
+
+    // Write the modified content back to the file
+    std::ofstream outputFile(filename.Data());
+
+    if (!outputFile.is_open()) {
+        std::cerr << "Error: Unable to open the file " << filename.Data() << " for writing." << std::endl;
+        return false; // Return false to indicate an error
+    }
+
+    outputFile << fileContent;
+    outputFile.close();
+
+    return true; // Return true if the replacement was successful
+}
+
+void processSystematicTextFile( const TString& filename, const TString& searchText, const TString& newText ){
+    int line_number = findTextFileLineNumberWithCustomString(filename, searchText);
+    if( line_number != -1 ){
+        replaceTextInLine(filename, line_number, newText);
+    }
+    if( line_number == -1 ){
+        std::ofstream outputFile(filename.Data(), std::ios::app );
+        outputFile << newText.Data() << endl;
+        outputFile.close();
+    }
+}
+
+vector<double> ExtractNumericalToRangeFromFilename(TString filename) {
+    TString search_anchor = "_to_";
+    int length_of_vals = 4;
+
+    double val1, val2;
+    TString str1, str2;
+
+    int anchor_index = filename.Index(search_anchor);
+
+    str1 = filename(anchor_index - length_of_vals, length_of_vals);
+    str2 = filename(anchor_index + search_anchor.Length(), length_of_vals);
+
+    val1 = str1.Atof()/1000.0;
+    val2 = str2.Atof()/1000.0;
+
+    vector< double> values = {val1, val2};
+
+    return values;
+
+}
+
+double ExtractWindowSizeFromFilename(TString filename){
+    TString search_anchor = "windowSize";
+    int length_of_vals = 4;
+
+    int anchor_index = filename.Index(search_anchor);
+
+    TString str = filename(anchor_index + search_anchor.Length(), length_of_vals);
+
+    double val = str.Atof()/1000.0;
+    return val;
+}
+
+double findMinWithErrors(const std::vector<double>& data, const std::vector<double>& errors) {
+    double min_with_errors = data[0] - errors[0]; // Initialize with the first data point and its error bar
+    for (size_t i = 1; i < data.size(); ++i) {
+        double value_with_error = data[i] - errors[i];
+        if (value_with_error < min_with_errors) {
+            min_with_errors = value_with_error;
+        }
+    }
+    return min_with_errors;
+}
+
+// Function to find maximum value considering the error bars
+double findMaxWithErrors(const std::vector<double>& data, const std::vector<double>& errors) {
+    double max_with_errors = data[0] + errors[0]; // Initialize with the first data point and its error bar
+    for (size_t i = 1; i < data.size(); ++i) {
+        double value_with_error = data[i] + errors[i];
+        if (value_with_error > max_with_errors) {
+            max_with_errors = value_with_error;
+        }
+    }
+    return max_with_errors;
+}
+
+void sortTwoCorrelatedVectors(std::vector<double>& vec1, std::vector<double>& vec2) {
+    // Create a vector of pairs where the first element is the value from vec1
+    // and the second element is the index
+    std::vector<std::pair<double, int>> pairs;
+    for (int i = 0; i < vec1.size(); ++i) {
+        pairs.push_back({vec1[i], i});
+    }
+
+    // Sort the vector of pairs based on the value (first element)
+    std::sort(pairs.begin(), pairs.end());
+
+    // Apply the same permutation to vec1 and vec2
+    std::vector<double> sortedVec1;
+    std::vector<int> sortedVec2;
+    for (const auto& pair : pairs) {
+        sortedVec1.push_back(pair.first);
+        sortedVec2.push_back(vec2[pair.second]);
+    }
+
+    // Update the original vectors
+    // vec1 = sortedVec1;
+    // vec2 = sortedVec2;
+    for(int i = 0; i < sortedVec1.size(); i++ ){
+        vec1[i] = sortedVec1[i];
+        vec2[i] = sortedVec2[i];
+    }
+}
+
+
+
 
 #endif

@@ -15,6 +15,17 @@ double CalculateErrorMultiplicationDivision( double val1, double val1_err, doubl
     return finalError;
 }
 
+double calculateVectorRSS( const std::vector<double>& values ){
+    int n = values.size();
+    double sum = 0.0;
+
+    for( int i = 0; i < n; i++ ){
+        sum += values[i]*values[i];
+    }
+
+    return sqrt(sum);
+}
+
 // Function to calculate the error in a fit function result at a given x value
 double calculateFitFunctionError(TF1* fitFunction, const std::vector<double>& coefficients, const std::vector<double>& coefficientErrors, double xValue) {
     // Set the coefficients with their respective errors
@@ -205,6 +216,27 @@ double calc_sigma_R_n_bosted_Err(double CErr_eps_n, double CErr_GEn_bosted, doub
     }
     else{
         return Sigma_R_n_bosted;
+    }
+}
+
+double calc_sigma_R_N_Err(double eps_N, double GEN, double GEN_err, double tau_N, double GMN, double GMN_err, int return_err = 1 ){
+    double GEN_term, GEN_term_err, GMN_term, GMN_term_err;
+    double Sigma_R_N, Sigma_R_N_err;
+
+    GEN_term = eps_N*GEN*GEN;
+    GEN_term_err = eps_N*2*GEN*GEN_err;
+
+    GMN_term = tau_N*GMN*GMN;
+    GMN_term_err = tau_N*2*GMN*GMN_err;
+
+    Sigma_R_N = GEN_term + GMN_term;
+    Sigma_R_N_err = sqrt( pow(GEN_term_err, 2) + pow(GMN_term_err, 2) );
+
+    if( return_err ){
+        return Sigma_R_N_err;       
+    }
+    else{
+        return Sigma_R_N;
     }
 }
 

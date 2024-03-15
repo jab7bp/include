@@ -29,8 +29,19 @@ TF1 *fit_and_get_inelastic_BG_fit_from_file( cl_SBSkine& SBSkine, bool anticut_r
 	Double_t dy_sigma = SBSkine.dy_sigma;
 
 	double dy_mult = SBSkine.dy_mult;
-	Double_t dy_min = dy_mean - (dy_mult)*dy_sigma;
-	Double_t dy_max = dy_mean + (dy_mult)*dy_sigma;	
+	double dy_mult_minus = SBSkine.dy_mult_minus;
+	double dy_mult_plus = SBSkine.dy_mult_plus;
+
+	Double_t dy_min, dy_max;
+	if( SBSkine.pass == 1 ){
+		dy_min = dy_mean - (dy_mult)*dy_sigma;
+		dy_max = dy_mean + (dy_mult)*dy_sigma;		
+	}
+	else{
+		dy_min = dy_mean - (dy_mult_minus)*dy_sigma;
+		dy_max = dy_mean + (dy_mult_plus)*dy_sigma;		
+	}
+
 
 	TString I_beam_str = "";
 
@@ -290,8 +301,18 @@ TF1 *get_dx_total_fit( TH1D *h_dx, cl_SBSkine& SBSkine, TString identifier = "",
 	Double_t dy_sigma = SBSkine.dy_sigma;
 
 	double dy_mult = SBSkine.dy_mult;
-	Double_t dy_min = dy_mean - (dy_mult)*dy_sigma;
-	Double_t dy_max = dy_mean + (dy_mult)*dy_sigma;	
+	double dy_mult_minus = SBSkine.dy_mult_minus;
+	double dy_mult_plus = SBSkine.dy_mult_plus;
+
+	Double_t dy_min, dy_max;
+	if( SBSkine.pass == 1 ){
+		dy_min = dy_mean - (dy_mult)*dy_sigma;
+		dy_max = dy_mean + (dy_mult)*dy_sigma;		
+	}
+	else{
+		dy_min = dy_mean - (dy_mult_minus)*dy_sigma;
+		dy_max = dy_mean + (dy_mult_plus)*dy_sigma;		
+	}
 
 	TAxis *xaxis = h_dx->GetXaxis();
 	int xbins = xaxis->GetNbins();
@@ -389,10 +410,19 @@ TH1D *make_dyAnticut_dx_histo( TH2D *h_dxdy, cl_SBSkine& SBSkine){
 	Double_t dy_mean = SBSkine.dy_mean;
 	Double_t dy_sigma = SBSkine.dy_sigma;
 
-	double dy_mult = SBSkine.dy_mult;	
+	double dy_mult = SBSkine.dy_mult;
+	double dy_mult_minus = SBSkine.dy_mult_minus;
+	double dy_mult_plus = SBSkine.dy_mult_plus;
 
-	Double_t dy_min = dy_mean - (dy_mult)*dy_sigma;
-	Double_t dy_max = dy_mean + (dy_mult)*dy_sigma;
+	Double_t dy_min, dy_max;
+	if( SBSkine.pass == 1 ){
+		dy_min = dy_mean - (dy_mult)*dy_sigma;
+		dy_max = dy_mean + (dy_mult)*dy_sigma;		
+	}
+	else{
+		dy_min = dy_mean - (dy_mult_minus)*dy_sigma;
+		dy_max = dy_mean + (dy_mult_plus)*dy_sigma;		
+	}
 
 	//Histogram limits:
 	TAxis *xaxis = h_dxdy->GetXaxis();
@@ -449,10 +479,19 @@ TH2D *make_dyAnticut_dxdy_histo( TH2D *h_dxdy, cl_SBSkine& SBSkine){
 	Double_t dy_mean = SBSkine.dy_mean;
 	Double_t dy_sigma = SBSkine.dy_sigma;
 
-	double dy_mult = SBSkine.dy_mult;	
+	double dy_mult = SBSkine.dy_mult;
+	double dy_mult_minus = SBSkine.dy_mult_minus;
+	double dy_mult_plus = SBSkine.dy_mult_plus;
 
-	Double_t dy_min = dy_mean - (dy_mult)*dy_sigma;
-	Double_t dy_max = dy_mean + (dy_mult)*dy_sigma;
+	Double_t dy_min, dy_max;
+	if( SBSkine.pass == 1 ){
+		dy_min = dy_mean - (dy_mult)*dy_sigma;
+		dy_max = dy_mean + (dy_mult)*dy_sigma;		
+	}
+	else{
+		dy_min = dy_mean - (dy_mult_minus)*dy_sigma;
+		dy_max = dy_mean + (dy_mult_plus)*dy_sigma;		
+	}
 
 	//Histogram limits:
 	TAxis *xaxis = h_dxdy->GetXaxis();
@@ -519,7 +558,7 @@ TF1 *fit_dyAnticut_BG( TH1D *h_dx_dyAntiCut = NULL ){
 	tf_dx_dyAntiCut = new TF1("tf_dx_dyAntiCut", background_pol4, xaxis_min, xaxis_max, 5);
 	tf_dx_dyAntiCut->SetNpx( h_dx_dyAntiCut->GetNbinsX() );
 
-	h_dx_dyAntiCut->Fit("tf_dx_dyAntiCut", "R+");
+	h_dx_dyAntiCut->Fit("tf_dx_dyAntiCut", "RMSE+");
 	h_dx_dyAntiCut->GetXaxis()->SetRangeUser(plot_xmin, plot_xmax);
 
 	double antiCutBG_max_x = FindMaxTF1ValueInXRange(-2.5, 0, tf_dx_dyAntiCut).x;
@@ -576,21 +615,44 @@ TF1 *scale_dyAnticut_by_TF1_eval( cl_SBSkine& SBSkine, double total_dx_x_eval = 
 	return tf_scale_dyAnticut_by_TF1_eval;
 }
 
-TF1 *scale_dyAnticut_by_TF1_eval_MaxMin( cl_SBSkine& SBSkine, double total_dx_x_eval = -99999.0, double low_x_eval_value = -2.0, double high_x_eval_value = 1.0, TF1 *tf_dyAnticut_BG = NULL, TString identifier = "", double custom_scaling = 1.0 ){
+TF1 *scale_dyAnticut_by_TF1_eval_MaxMin( cl_SBSkine& SBSkine, double total_dx_x_eval = -99999.0, double low_x_eval_value = -2.0, double high_x_eval_value = 1.0, TF1 *tf_dyAnticut_BG = NULL, TString identifier = "", bool systematics = false, bool bg_sub_systematics_analysis = false, double bg_sub_syst_val = 1.0, double custom_scaling = 1.0 ){
 	if( identifier != "" ){ identifier.Prepend("_"); }
 
 	int kine = SBSkine.kine;
 
 	double dyAnticut_prescale_factor;
 
-	if( kine == 4 ){
-		dyAnticut_prescale_factor = 0.25867812; //Larger number subtracts more background from data.
+	if( systematics && !bg_sub_systematics_analysis ){
+		if( kine == 4 ){
+			dyAnticut_prescale_factor = 0.40; //0.35867812; //Larger number subtracts more background from data.
+		}
+		if( kine == 8 ){
+			dyAnticut_prescale_factor = 0.41; //0.32276110; //0.43; //0.32276110; //Larger number subtracts more background from data.
+		}
+		if( kine == 9 ){
+			dyAnticut_prescale_factor = 0.40; //0.260803; //0.48; //0.218666; //0.11132874; //Larger number subtracts more background from data.
+		}		
 	}
-	if( kine == 8 ){
-		dyAnticut_prescale_factor = 0.32276110; //Larger number subtracts more background from data.
+
+	else if( systematics && bg_sub_systematics_analysis ){
+		dyAnticut_prescale_factor = bg_sub_syst_val;
 	}
-	if( kine == 9 ){
-		dyAnticut_prescale_factor = 0.260803; //0.48; //0.218666; //0.11132874; //Larger number subtracts more background from data.
+	else{
+		if( kine == 4 ){
+			if( SBSkine.sbsfieldscale == 30 ){
+				dyAnticut_prescale_factor = 0.6; //0.35867812; //Larger number subtracts more background from data.
+			}
+			if( SBSkine.sbsfieldscale == 50 ){
+				dyAnticut_prescale_factor = -0.1; //0.35867812; //Larger number subtracts more background from data.
+			}
+			
+		}
+		if( kine == 8 ){
+			dyAnticut_prescale_factor = 0.22276110; //0.43; //0.32276110; //Larger number subtracts more background from data.
+		}
+		if( kine == 9 ){
+			dyAnticut_prescale_factor = 0.60; //0.260803; //0.48; //0.218666; //0.11132874; //Larger number subtracts more background from data.
+		}		
 	}
 
 	double plot_xmin = -2.0;
@@ -827,13 +889,19 @@ TF1 *scale_inelastics_by_TF1_eval( cl_SBSkine& SBSkine, double total_dx_x_eval =
 	return tf_scale_inelastics_by_TF1_eval;
 }
 
-TF1 *scale_inelastics_by_TF1_eval_MaxMin( cl_SBSkine& SBSkine, double total_dx_x_eval = -99999.0, double low_x_eval_value = -2.0, double high_x_eval_value = 1.0, TF1 *tf_inelastics_BG = NULL, TString identifier = "", double custom_scaling = 1.0 ){
+TF1 *scale_inelastics_by_TF1_eval_MaxMin( cl_SBSkine& SBSkine, double total_dx_x_eval = -99999.0, double low_x_eval_value = -2.0, double high_x_eval_value = 1.0, TF1 *tf_inelastics_BG = NULL, TString identifier = "", bool bg_sub_systematics_analysis = false, double bg_sub_syst_val = 1.0, double custom_scaling = 1.0 ){
 	
 	if( identifier != "" ){ identifier.Prepend("_"); }
 
 	int kine = SBSkine.kine;
 	double inelastics_prescale_factor;
 
+	if( bg_sub_systematics_analysis ){
+		inelastics_prescale_factor = bg_sub_syst_val;
+	}
+	if( kine == 4 ){
+		inelastics_prescale_factor = 0.50437188; //Larger number subtracts more background from data.
+	}
 	if( kine == 8 ){
 		inelastics_prescale_factor = 0.50437188; //Larger number subtracts more background from data.
 	}

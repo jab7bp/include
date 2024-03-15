@@ -9,6 +9,7 @@ class cl_SBSkine {
 //Experimental Kinematics
 	int kine;
 	int sbsfieldscale;
+	int pass;
 	TString run_target;
 	TString magmod;
 
@@ -21,10 +22,13 @@ class cl_SBSkine {
 
 	double Q2_calculated;
 	double Q2_data_mean;
+	double Q2_data_std_dev;
 
 	double e_scat_momentum;
 
 //Booleans
+	bool extracted = false;
+
 	bool use_dy_anticut_BGsub; //Background source: dy_anticut used for BGsub
 	bool use_inelastic_BGsub; //Background source: fit to simc inelastics BG (always !use_dy_anticut_BGsub)
 	bool use_collected; //Use some histograms collected from others' analysis?
@@ -38,6 +42,7 @@ class cl_SBSkine {
 	double dy_sigma;
 
 	double dy_mult; //Multiplier used on the dy_sigma to define the dy_anticut size/region
+	double dy_mult_minus, dy_mult_plus; // Used for assymmetrical dy cut
 
 //Data histograms
 	TH1D *h_data_dx; //Final dx plot to be sent to BGsub, etc. PRE-BGSUB, etc. (includes wcut, fcut, etc.)
@@ -61,6 +66,7 @@ class cl_SBSkine {
 
 	////
 	TH1D *h_data_dx_with_select_BGsub; //SELECTED (dyAnticut or inelastics) dx plot WITH BGsub
+	Int_t N_data_dx_with_select_BGsub; //Number of entries in BG sub (selected) data dx
 	TH1D *h_data_dx_with_select_BGsub_DoubleBinWidth; 
 	TH1D *h_data_dx_with_select_BGsub_DoubleBinWidth_CloneForPlotting; 
 	TH1D *h_simc_dx_scaled_to_BGsub;
@@ -101,17 +107,24 @@ class cl_SBSkine {
 //DATA and SIMC Comparisons - yields, scale factors, etc. 
 	double yield_n;  //Integral of SCALED (and chi-square min.) h_simc_dx_n
 	double yield_n_error;
+	double yield_n_error_Nnorm;
 	double yield_p;  //Integral of SCALED (and chi-square min.) h_simc_dx_p
 	double yield_p_error;  //Integral of SCALED (and chi-square min.) h_simc_dx_p
+	double yield_p_error_Nnorm;
 	double yield_np_ratio; //Ratio of SCALED yields
 	double yield_np_ratio_error;
+	double yield_total;
 
 	double scale_n;  //Scale factor used to chi-square min h_simc_dx_n and data
 	double scale_n_error;
+	double scale_n_error_Nnorm;
 	double scale_p;  //Scale factor used to chi-square min h_simc_dx_p and data
 	double scale_p_error;
+	double scale_p_error_Nnorm;
 	double scale_np_ratio;  //Ratio of scale factors
 	double scale_np_ratio_error;
+
+	double data_simc_yield_ratio; //ratio of N in simc_dx p + n yields and Data_dx_with_select_BGsub
 
 	double minuit_chiSquared; //Minimum chi-squared found in TMinuit minimization
 	double minuit_chiSquared_NDF; //Redcued chi-squared: chiSquared/NDF (NDF = 500 - 2);
@@ -120,13 +133,37 @@ class cl_SBSkine {
 //Form Factor and Cross-section variables
 	double eps_n = 0.0, eps_p = 0.0, tau_n = 0.0, tau_p = 0.0, G_D = 0.0;
 	double mott_CS;
-	double sigma_R_p_bosted = 0.0;
-	double sigma_R_p_bosted_err = 0.0;
+	double sigma_R_p_param = 0.0;
+	double sigma_R_p_param_err = 0.0;
 
-	double sigma_R_n_bosted = 0.0;
-	double sigma_R_n_bosted_err = 0.0;
+	double sigma_R_n_param = 0.0;
+	double sigma_R_n_param_err = 0.0;
 
 //Form Factors - Theoretical
+	//general variables to hold any parameterization
+	double GEp_param = 0.0;
+	double GEp_param_err = 0.0;
+
+	//-----------
+
+	double GMp_param = 0.0;
+	double GMp_param_err = 0.0;
+
+	//-----------
+
+	double GEn_param = 0.0;
+	double GEn_param_err = 0.0;
+
+	double GEn_param_norm = 0.0;
+	double GEn_param_norm_err = 0.0;
+
+	//-----------
+
+	double GMn_param = 0.0;
+	double GMn_param_err = 0.0;
+
+////////////////////
+	//bosted
 	double GEp_bosted = 0.0;
 	double GEp_bosted_err = 0.0;
 
@@ -161,68 +198,49 @@ class cl_SBSkine {
 
 };
 
-// class cl_SBSkine {
-// 	public:
+class cl_nTPE {
+	public:
+
+	//Experimental Kinematics
+	int kine;
+	int sbsfieldscale;
+	int pass;
+	TString run_target;
+	TString magmod;
+
+	double E_beam;
+
+	double BB_theta_rad;
+	double BB_theta_deg;
+	double HCal_theta_rad;
+	double HCal_theta_deg;
+
+	double Q2_calculated;
+	double Q2_data_mean;
+
+	double e_scat_momentum;
+
+	double SBS8_yield_n, SBS8_yield_n_error, SBS8_yield_p, SBS8_yield_p_error;
+	double SBS8_yield_ratio, SBS8_yield_ratio_error;
+	double SBS8_scale_n, SBS8_scale_n_error, SBS8_scale_p, SBS8_scale_p_error;
+	double SBS8_scale_ratio, SBS8_scale_ratio_error;
+	double SBS8_GMn, SBS8_GMn_error, SBS8_GEn_, SBS8_GEn_error;
+	double SBS8_sigma_R, SBS8_sigma_R_error;
+	double SBS8_tau_n, SBS8_tau_p, SBS8_eps_n, SBS8_eps_p;
+	double SBS8_RS_n, SBS8_RS_n_error, SBS8_RS_p, SBS8_RS_p_error;
+	double SBS8_sigma_T, SBS8_sigma_T_error, SBS8_sigma_L, SBS8_sigma_L_error;
+
+	double SBS9_yield_n, SBS9_yield_n_error, SBS9_yield_p, SBS9_yield_p_error;
+	double SBS9_yield_ratio, SBS9_yield_ratio_error;
+	double SBS9_scale_n, SBS9_scale_n_error, SBS9_scale_p, SBS9_scale_p_error;
+	double SBS9_scale_ratio, SBS9_scale_ratio_error;
+	double SBS9_GMn, SBS9_GMn_error, SBS9_GEn_, SBS9_GEn_error;
+	double SBS9_sigma_R, SBS9_sigma_R_error;
+	double SBS9_tau_n, SBS9_tau_p, SBS9_eps_n, SBS9_eps_p;
+	double SBS9_RS_n, SBS9_RS_n_error, SBS9_RS_p, SBS9_RS_p_error;
+	double SBS9_sigma_T, SBS9_sigma_T_error, SBS9_sigma_L, SBS9_sigma_L_error;
 
 
-// //Experimental values:
-// 	int kine, sbsfieldscale;
-// 	TString run_target;
-
-// //Data experimental values:
-// 	double Q2_data_mean;
-// 	double dx_p_mean, dx_p_sigma, dx_n_mean, dx_n_sigma, dy_mean, dy_sigma;
-
-// //Analysis/extraction values:
-// 	double dy_mult;
-// 	double scale_p, scale_n, scale_np_ratio;
-// 	double minuit_chiSquared, minuit_chiSquared_NDF;
-
-// 	//BOOLEANS
-// 	bool use_inelastic_BGsub, use_dy_anticut_BGsub;
-
-// 	//Fits:
-// 	TF1 *tf_dx_total;
-// 	TF1 *tf_dyAnticut_BG, *tf_inelastics_BG;
-// 	TF1 *tf_dyAnticut_BG_scaled, *tf_inelastics_BG_scaled;
-
-// //Analysis histograms:
-// 	//DATA
-// 	TH1D *h_data_dx, *h_data_dy;
-// 	TH1D *h_data_dx_from_dyAnticut;
-// 	TH1D *h_data_dyAnticut_BG_scaled, *h_data_inelastics_BG_scaled;
-// 	TH1D *h_data_dx_with_dyAnticut_BGsub, *h_data_dx_with_inelastics_BGsub;
-
-// 	TH2D *h2_data_dxdy;
-// 	TH2D *h2_data_dxdy_with_dyAnticut;
-
-// 	//simc
-// 	TH1D *h_simc_dx, *h_simc_dx_p, *h_simc_dx_n;
-// 	TH1D *h_simc_dx_p_BeforeScaling, *h_simc_dx_n_BeforeScaling;
-// 	TH1D *h_mc_p_sigma, *h_mc_n_sigma, *h_mc_np_sigma_ratio;
-// 		//BG
-// 	TH1D *h_simc_dx_inelastics_BG, *h_simc_dx_inelastics_BG_scaled;
-
-// //Form Factor input variables:
-
-// //Form Factor calculations:
-
-// //Form Factor outputs:
-// 	double GMn_final;
-// 	double GMn_norm_final;
-
-// };
-
-// class for holding systematics variables {
-// class cl_systematic {
-// 	public:
-// 		vector<double> GMn_inv_mass_vec = {};
-// 		vector<double> inv_mass_vec = {};
-// 		double inv_mass_min = 0.0;
-// 		double inv_mass_max = 0.0;
-// 		double inv_mass_step = 0.0;
-
-
-// };
+};
 
 #endif

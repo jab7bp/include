@@ -1,7 +1,8 @@
-#ifndef BEAM_VARIABLES_H
-#define BEAM_VARIABLES_H
+#ifndef BEAM_VARIABLES_SYSTEMATICS_H
+#define BEAM_VARIABLES_SYSTEMATICS_H
 #include <algorithm>
 #include <vector>
+
 #include "/work/halla/sbs/jboyd/include/experimental_constants.h"
 
 TString target;
@@ -40,7 +41,7 @@ double sbsdist = 2.25;
 // const Double_t hcal_x_fmin = -2.015;
 // const Double_t hcal_x_fmax = 1.285;
 
-double lookup_hcal_dimensions_byPass( int pass, TString lookup_val, double HCal_blk_multiplier = 1.0){
+double lookup_hcal_dimensions_byPass( int pass, TString lookup_val, double HCal_blk_multiplier = 1.0 ){
 	double return_val = -1.0;
 
 	Double_t lookup_hcal_xi, lookup_hcal_xf, lookup_hcal_yi, lookup_hcal_yf;
@@ -87,7 +88,6 @@ double lookup_hcal_dimensions_byPass( int pass, TString lookup_val, double HCal_
 
 	return return_val;
 }
-
 
 double lookup_beam_current( int kine, TString run_target ){
 	double beam_current = -1;
@@ -570,76 +570,6 @@ double lookup_ADC_diff_time( TString run_target, int kine, int sbsfieldscale, TS
 
 }
 
-double lookup_pass2_ADC_diff_time( TString run_target, int kine, int sbsfieldscale, TString selection){
-	double lookup_val = -1;
-
-	double ADC_time_min = 30.0;
-	double ADC_time_max = 80.0;
-	double ADC_time_mean = 55.0;
-
-	// std::cout << "Selection: " << selection.Data() << endl;
-
-	if( selection == "ADC_diff_time_min" ){
-		lookup_val = ADC_time_min;
-	}
-	if( selection == "ADC_diff_time_max" ){
-		lookup_val = ADC_time_max;
-	}
-	if( selection == "ADC_diff_time_mean" ){
-		lookup_val = ADC_time_mean;
-	}
-
-	//kine, sbsfieldscale, ADC_min, ADC_max, ADC_mean
-	vector<vector<double>>ADC_times_LH2 = {
-		{4, 0, 45, 65, 55 },
-		{8, 0, 45, 65, 55 },
-		{9, 0, 45, 65, 55 },
-		{14, 0, 45, 65, 55 }
-	};
-	vector<vector<double>>ADC_times_LD2 = {
-		{4, 0, 45, 65, 55 },
-		// {4, 30, 30, 80, 55},
-		{4, 30, -6.0, 7.0, 0.5},
-		{4, 50, 95, 105.0, 100.0},
-		{8, 0, 45, 65, 55 },
-		// {8, 70, 43.25, 51.5, 47.4319},
-		{8, 70, -6.0, 7.0, 0.5},
-		{9, 0, 45, 65, 55 },
-		{9, 70, -8, 11, 1.5},
-		{14, 0, 45, 65, 55 }
-	};
-
-	if( run_target == "LH2" ){
-		for( size_t i = 0; i < ADC_times_LH2.size(); i++ ){
-			if( ADC_times_LH2[i][0] == kine && ADC_times_LH2[i][1] == sbsfieldscale ){
-				if( selection == "ADC_diff_time_min" ){lookup_val = ADC_times_LH2[i][2];}
-				if( selection == "ADC_diff_time_max" ){lookup_val = ADC_times_LH2[i][3];}
-				if( selection == "ADC_diff_time_mean" ){lookup_val = ADC_times_LH2[i][4];}
-			}
-		}
-	}
-	if( run_target == "LD2" ){
-		for( size_t i = 0; i < ADC_times_LD2.size(); i++ ){
-			if( ADC_times_LD2[i][0] == kine && ADC_times_LD2[i][1] == sbsfieldscale ){
-				if( selection == "ADC_diff_time_min" ){lookup_val = ADC_times_LD2[i][2];}
-				if( selection == "ADC_diff_time_max" ){lookup_val = ADC_times_LD2[i][3];}
-				if( selection == "ADC_diff_time_mean" ){lookup_val = ADC_times_LD2[i][4];}
-			}
-		}
-	}
-
-	if( lookup_val == -1 ){ 
-		std::cout << "Lookup for " << selection.Data() << " may not exist. Returned value of -1. " << std::endl;
-		cout << "Sleeping to allow for a ctrl-c catch..." << endl;
-		sleep(20);
-		cout << "Exiting...." << endl;
-		exit(1);	
-	}
-
-	return lookup_val;
-
-}
-
 double lookup_ADC_time_cut( TString run_target, int kine, int sbsfieldscale, TString selection){
 	double lookup_val = -1;
 
@@ -708,9 +638,9 @@ double lookup_ADC_time_cut( TString run_target, int kine, int sbsfieldscale, TSt
 double lookup_pass2_ADC_time_cut( TString run_target, int kine, int sbsfieldscale, TString selection){
 	double lookup_val = -1;
 
-	double ADC_time_min = 45.0;
-	double ADC_time_max = 65.0;
-	double ADC_time_mean = 55.0;
+	double ADC_time_min = -11;
+	double ADC_time_max = 11.0;
+	double ADC_time_mean = 0.0;
 
 	if( selection == "ADC_time_min" ){
 		lookup_val = ADC_time_min;
@@ -883,7 +813,6 @@ double lookup_parsed_cut(TString run_targ, int kine, int sbsfield, TString param
 	vector<vector<double>> parsed_cuts = {
 		{0, 9, 70, 0.200, 1.47127, 0.1700, 0.05, 1.01220, 0.102237, 0.903016, 0.114904, 0.955679, 0.0640582},
 		{1, 4, 30, 0.200, 1.94683, 2.11979e-01, 0.005, 9.84721e-01, 6.96694e-02, 9.47334e-01, 2.21838e-01, 9.86774e-01, 1.20471e-01},
-		{1, 4, 50, 0.200, 1.97464, 2.23053e-01, 0.005, 9.94056e-01, 6.96694e-02, 9.47334e-01, 2.21838e-01, 9.86774e-01, 1.20471e-01},
 		// {1, 4, 30, 0.200, 1.79639, 3.65091e-01, 0.005, 9.63486e-01, 6.56411e-02, 9.20000e-01, 0.31, 0.983, 0.1903, 3.1},
 		{1, 8, 70, 0.200, 2.89899, 3.91567e-01, 0.05, 1.00580, 7.24263e-02, 0.879844, 3.56055e-01, 0.940, 0.1903},
 		// {1, 9, 70, 0.200, 1.48083, 2.12634e-01, 0.05, 0.96367, 0.0668529, 1.04198, 1.33898e-01, 0.983, 0.1903, 3.1},
@@ -920,6 +849,130 @@ double lookup_parsed_cut(TString run_targ, int kine, int sbsfield, TString param
 	return lookup_val;
 }
 
+double lookup_pass2_parsed_cut(TString run_targ, int kine, int sbsfield, TString param){
+	double lookup_val = -1;
+
+	int target_int;
+
+	if( run_targ == "LH2" ){
+		target_int = 0;
+	}
+	if( run_targ == "LD2" ){
+		target_int = 1;
+	}
+
+	//Cuts vector:
+// 	[0]target_int, [1]kine, [2]sbs_field [3]PS_clus_e_cut, [4]SH_PS_mean, [5]SH_PS_sigma, [6]HCal_clus_e_cut, [7]Ep, [8]Ep_sigma, [9]W2, [10]W2_sigma, [11]W, [12]W_sigma, 
+	vector<vector<double>> parsed_cuts = {
+		{0, 9, 70, 0.200, 1.47127, 0.1700, 0.05, 1.01220, 0.102237, 0.903016, 0.114904, 0.955679, 0.0640582},
+		{1, 4, 30, 0.200, 1.94683, 2.11979e-01, 0.005, 9.84721e-01, 6.96694e-02, 9.47334e-01, 2.21838e-01, 9.86774e-01, 1.20471e-01},
+		{1, 4, 50, 0.200, 1.81920, 3.46830e-01, 0.005, 9.97506e-01, 6.89847e-02, 9.48621e-01, 2.23345e-01, 9.84066e-01, 1.15062e-01},
+		// {1, 4, 30, 0.200, 1.79639, 3.65091e-01, 0.005, 9.63486e-01, 6.56411e-02, 9.20000e-01, 0.31, 0.983, 0.1903, 3.1},
+		{1, 8, 70, 0.200, 3.03609, 4.52154e-01, 0.05, 9.80676e-01, 6.27597e-02, 9.90208e-01, 2.87564e-01, 1.02116, 1.60886e-01},
+		// {1, 9, 70, 0.200, 1.48083, 2.12634e-01, 0.05, 0.96367, 0.0668529, 1.04198, 1.33898e-01, 0.983, 0.1903, 3.1},
+		{1, 9, 70, 0.200, 1.50003, 1.90397e-01, 0.05, 1.02073, 8.11867e-02, 9.69341e-01, 0.29604, 1.00452, 1.54714e-01},
+		{1, 14, 70, 0.200, 1.32, 0.155559, 0.005, 1.07439, 0.136613, 8.41250e-01, 0.26, 9.50000e-01, 0.16}
+	};
+	//	9.38724e-01 4.57268e-01
+//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-run_02
+
+	for( size_t i = 0; i < parsed_cuts.size(); i++){
+		if( parsed_cuts[i][0] == target_int && parsed_cuts[i][1] == kine && parsed_cuts[i][2] == sbsfield ){
+			if( param == "PS_clus_e_cut" ){lookup_val = parsed_cuts[i][3];}
+			if( param == "SH_PS_mean" ){lookup_val = parsed_cuts[i][4];}
+			if( param == "SH_PS_sigma" ){lookup_val = parsed_cuts[i][5];}
+			if( param == "HCal_clus_e_cut" ){lookup_val = parsed_cuts[i][6];}
+			if( param == "Ep" ){lookup_val = parsed_cuts[i][7];}
+			if( param == "Ep_sigma" ){lookup_val = parsed_cuts[i][8];}
+			if( param == "W2" ){lookup_val = parsed_cuts[i][9];}
+			if( param == "W2_sigma" ){lookup_val = parsed_cuts[i][10];}
+			if( param == "W" ){lookup_val = parsed_cuts[i][11];}
+			if( param == "W_sigma" ){lookup_val = parsed_cuts[i][12];}
+
+		}
+	}
+
+	if( lookup_val == -1 ){ 
+		std::cout << "Lookup for " << param.Data() << " may not exist. Returned value of -1. " << std::endl;
+		cout << "Sleeping to allow for a ctrl-c catch..." << endl;
+		sleep(20);
+		cout << "Exiting...." << endl;
+		exit(1);	
+	}
+
+	return lookup_val;
+}
+
+double lookup_pass2_ADC_diff_time( TString run_target, int kine, int sbsfieldscale, TString selection){
+	double lookup_val = -1;
+
+	double ADC_time_min = -8.0;
+	double ADC_time_max = 8.0;
+	double ADC_time_mean = 0.0;
+
+	// std::cout << "Selection: " << selection.Data() << endl;
+
+	if( selection == "ADC_diff_time_min" ){
+		lookup_val = ADC_time_min;
+	}
+	if( selection == "ADC_diff_time_max" ){
+		lookup_val = ADC_time_max;
+	}
+	if( selection == "ADC_diff_time_mean" ){
+		lookup_val = ADC_time_mean;
+	}
+
+	//kine, sbsfieldscale, ADC_min, ADC_max, ADC_mean
+	vector<vector<double>>ADC_times_LH2 = {
+		{4, 0, 45, 65, 55 },
+		{8, 0, 45, 65, 55 },
+		{9, 0, 45, 65, 55 },
+		{14, 0, 45, 65, 55 }
+	};
+	vector<vector<double>>ADC_times_LD2 = {
+		{4, 0, 45, 65, 55 },
+		// {4, 30, 30, 80, 55},
+		{4, 30, -6.0, 7.0, 0.5},
+		{4, 50, 95, 105.0, 100.0},
+		{8, 0, 45, 65, 55 },
+		// {8, 70, 43.25, 51.5, 47.4319},
+		{8, 70, -6.0, 7.0, 0.5},
+		{9, 0, 45, 65, 55 },
+		{9, 70, -8, 11, 1.5},
+		{14, 0, 45, 65, 55 }
+	};
+
+	if( run_target == "LH2" ){
+		for( size_t i = 0; i < ADC_times_LH2.size(); i++ ){
+			if( ADC_times_LH2[i][0] == kine && ADC_times_LH2[i][1] == sbsfieldscale ){
+				if( selection == "ADC_diff_time_min" ){lookup_val = ADC_times_LH2[i][2];}
+				if( selection == "ADC_diff_time_max" ){lookup_val = ADC_times_LH2[i][3];}
+				if( selection == "ADC_diff_time_mean" ){lookup_val = ADC_times_LH2[i][4];}
+			}
+		}
+	}
+	if( run_target == "LD2" ){
+		for( size_t i = 0; i < ADC_times_LD2.size(); i++ ){
+			if( ADC_times_LD2[i][0] == kine && ADC_times_LD2[i][1] == sbsfieldscale ){
+				if( selection == "ADC_diff_time_min" ){lookup_val = ADC_times_LD2[i][2];}
+				if( selection == "ADC_diff_time_max" ){lookup_val = ADC_times_LD2[i][3];}
+				if( selection == "ADC_diff_time_mean" ){lookup_val = ADC_times_LD2[i][4];}
+			}
+		}
+	}
+
+	if( lookup_val == -1 ){ 
+		std::cout << "Lookup for " << selection.Data() << " may not exist. Returned value of -1. " << std::endl;
+		cout << "Sleeping to allow for a ctrl-c catch..." << endl;
+		sleep(20);
+		cout << "Exiting...." << endl;
+		exit(1);	
+	}
+
+	return lookup_val;
+
+}
+
 double lookup_dxdy_by_kine_and_mag(TString run_targ, int kine, int sbsfield, TString param){
 	double lookup_val = -1;
 
@@ -939,8 +992,8 @@ double lookup_dxdy_by_kine_and_mag(TString run_targ, int kine, int sbsfield, TSt
 		{1, 4, 30, -7.23003e-01, 2.27484e-01, -7.95995e-02, 2.43764e-01, -2.52095e-03, 3.48455e-01},
 		// {1, 4, 30, -6.64355e-01, 1.87355e-01, -3.00944e-02, 1.86885e-01, -2.86533e-02, 2.93390e-01},
 		// {1, 8, 70, -9.25074e-01, 1.83060e-01, -6.44180e-02, 1.66322e-01, -1.59126e-03, 2.12280e-01},
-		{1, 8, 70, -8.46445e-01, 2.01798e-01,  5.08653e-03, 1.77414e-01, -4.19000e-02, 2.44855e-01},
-		{1, 9, 70, -8.73940e-01, 1.92986e-01, 1.28575e-02, 1.88892e-01, 1.68357e-02, 3.33700e-01},
+		{1, 8, 70, -8.53383e-01, 2.23455e-01,  1.30135e-02, 1.74434e-01, -4.19000e-02, 2.44855e-01},
+		{1, 9, 70, -8.69576e-01, 1.60000e-01, -3.79001e-03, 1.60000e-01, 4.22771e-02, 3.00000e-01},
 		{1, 14, 70, -8.69576e-01, 1.60000e-01, -3.79001e-03, 1.60000e-01, 4.22771e-02, 3.00000e-01}
 	};
 	//	9.38724e-01 4.57268e-01
@@ -967,7 +1020,6 @@ double lookup_dxdy_by_kine_and_mag(TString run_targ, int kine, int sbsfield, TSt
 
 	return lookup_val;
 }
-
 double lookup_pass2_dxdy_by_kine_and_mag(TString run_targ, int kine, int sbsfield, TString param){
 	double lookup_val = -1;
 
@@ -989,7 +1041,8 @@ double lookup_pass2_dxdy_by_kine_and_mag(TString run_targ, int kine, int sbsfiel
 		// {1, 4, 30, -6.64355e-01, 1.87355e-01, -3.00944e-02, 1.86885e-01, -2.86533e-02, 2.93390e-01},
 		// {1, 8, 70, -9.25074e-01, 1.83060e-01, -6.44180e-02, 1.66322e-01, -1.59126e-03, 2.12280e-01},
 		{1, 8, 70, -8.42173e-01, 1.96240e-01,  2.71249e-04, 1.88090e-01, -1.13301e-02, 2.89359e-01},
-		{1, 9, 70, -8.82141e-01, 1.59209e-01, 2.23621e-03, 1.63609e-01, 9.04064e-03, 2.97628e-01},
+		// {1, 9, 70, -8.82141e-01, 1.59209e-01, 2.23621e-03, 1.63609e-01, 9.04064e-03, 2.97628e-01},
+		{1, 9, 70, -8.63029e-01, 1.76422e-01, 1.57024e-02, 1.78673e-01, 9.04064e-03, 2.97628e-01},
 		{1, 14, 70, -8.69576e-01, 1.60000e-01, -3.79001e-03, 1.60000e-01, 4.22771e-02, 3.00000e-01}
 	};
 	//	9.38724e-01 4.57268e-01
@@ -2029,142 +2082,91 @@ double lookup_run_info( int runnum, TString lookup_var){
 	return return_var;
 }
 
-double lookup_pass2_pre_parsed_cut(TString run_targ, int kine, TString param){
-	double lookup_val = -1;
-
-	int target_int;
-
-	if( run_targ == "LH2" ){
-		target_int = 0;
-	}
-	if( run_targ == "LD2" ){
-		target_int = 1;
-	}
-
-	//Cuts vector:
-// 	[0]target_int, [1]kine, [2]PS_clus_e_cut, [3]SH_PS_clus_e_cut, [4]SH_PS_sigma, [5]HCal_clus_e_cut, [6]Ep, [7]Ep_sigma, [8]W2, [9]W2_sigma, [10]W, [11]W_sigma, 
-	vector<vector<double>> pre_parsed_cuts = {
-		{0, 9, 70, 0.200, 1.24236, 0.232063, 0.05, 1.01220, 0.102237, 0.904105, 0.113001, 0.953148, 0.00593128},
-		{1, 4, 0.200, 1.55310, 2.86039e-01, 0.005, 9.95116e-01, 7.82505e-02, 9.55009e-01, 2.46162e-01, 1.00085, 1.40260e-01},
-		// {1, 4, 0.200, 1.57099, 0.264047, 0.005, 0.978222, 0.0815986, 8.88086e-01, 0.165, 0.955, 0.1108},
-		{1, 8, 0.200, 2.75909, 3.92484e-01, 0.005, 9.77928e-01, 6.99588e-02, 8.41250e-01, 0.26, 9.50000e-01, 0.16},
-		{1, 9, 0.200, 1.23487, 1.58134e-01, 0.005, 1.05207, 1.24555e-01, 9.73703e-01, 0.3, 1.04234, 0.2},
-		{1, 14, 0.200, 1.0, 0.155559, 0.005, 1.07439, 0.136613, 8.41250e-01, 0.26, 9.50000e-01, 0.16}
-	};
-	//	9.38724e-01 4.57268e-01
-//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-02
-
-	for( size_t i = 0; i < pre_parsed_cuts.size(); i++){
-		if( pre_parsed_cuts[i][0] == target_int && pre_parsed_cuts[i][1] == kine ){
-			if( param == "PS_clus_e_cut" ){lookup_val = pre_parsed_cuts[i][2];}
-			if( param == "SH_PS_clus_e_cut" ){lookup_val = pre_parsed_cuts[i][3];}
-			if( param == "SH_PS_sigma" ){lookup_val = pre_parsed_cuts[i][4];}
-			if( param == "HCal_clus_e_cut" ){lookup_val = pre_parsed_cuts[i][5];}
-			if( param == "Ep" ){lookup_val = pre_parsed_cuts[i][6];}
-			if( param == "Ep_sigma" ){lookup_val = pre_parsed_cuts[i][7];}
-			if( param == "W2" ){lookup_val = pre_parsed_cuts[i][8];}
-			if( param == "W2_sigma" ){lookup_val = pre_parsed_cuts[i][9];}
-			if( param == "W" ){lookup_val = pre_parsed_cuts[i][10];}
-			if( param == "W_sigma" ){lookup_val = pre_parsed_cuts[i][11];}
-
-		}
-	}
-	return lookup_val;
-}
-
-double lookup_pass2_parsed_cut(TString run_targ, int kine, int sbsfield, TString param){
-	double lookup_val = -1;
-
-	int target_int;
-
-	if( run_targ == "LH2" ){
-		target_int = 0;
-	}
-	if( run_targ == "LD2" ){
-		target_int = 1;
-	}
-
-	//Cuts vector:
-// 	[0]target_int, [1]kine, [2]sbs_field [3]PS_clus_e_cut, [4]SH_PS_mean, [5]SH_PS_sigma, [6]HCal_clus_e_cut, [7]Ep, [8]Ep_sigma, [9]W2, [10]W2_sigma, [11]W, [12]W_sigma, 
-	vector<vector<double>> parsed_cuts = {
-		{0, 9, 70, 0.200, 1.47127, 0.1700, 0.05, 1.01220, 0.102237, 0.903016, 0.114904, 0.955679, 0.0640582},
-		{1, 4, 30, 0.200, 1.94683, 2.11979e-01, 0.005, 9.84721e-01, 6.96694e-02, 9.47334e-01, 2.21838e-01, 9.86774e-01, 1.20471e-01},
-		{1, 4, 50, 0.200, 1.81920, 3.46830e-01, 0.005, 9.97506e-01, 6.89847e-02, 9.48621e-01, 2.23345e-01, 9.84066e-01, 1.15062e-01},
-		// {1, 4, 30, 0.200, 1.79639, 3.65091e-01, 0.005, 9.63486e-01, 6.56411e-02, 9.20000e-01, 0.31, 0.983, 0.1903, 3.1},
-		{1, 8, 70, 0.200, 3.03609, 4.52154e-01, 0.05, 9.80676e-01, 6.27597e-02, 9.90208e-01, 2.87564e-01, 1.02116, 1.60886e-01},
-		// {1, 9, 70, 0.200, 1.48083, 2.12634e-01, 0.05, 0.96367, 0.0668529, 1.04198, 1.33898e-01, 0.983, 0.1903, 3.1},
-		{1, 9, 70, 0.200, 1.50003, 1.90397e-01, 0.05, 1.02073, 8.11867e-02, 9.69341e-01, 0.29604, 1.00452, 1.54714e-01},
-		{1, 14, 70, 0.200, 1.32, 0.155559, 0.005, 1.07439, 0.136613, 8.41250e-01, 0.26, 9.50000e-01, 0.16}
-	};
-	//	9.38724e-01 4.57268e-01
-//13585: HCal_clus_e_cut = 2.39514e-02 --> sigma: 1.08801e-run_02
-
-	for( size_t i = 0; i < parsed_cuts.size(); i++){
-		if( parsed_cuts[i][0] == target_int && parsed_cuts[i][1] == kine && parsed_cuts[i][2] == sbsfield ){
-			if( param == "PS_clus_e_cut" ){lookup_val = parsed_cuts[i][3];}
-			if( param == "SH_PS_mean" ){lookup_val = parsed_cuts[i][4];}
-			if( param == "SH_PS_sigma" ){lookup_val = parsed_cuts[i][5];}
-			if( param == "HCal_clus_e_cut" ){lookup_val = parsed_cuts[i][6];}
-			if( param == "Ep" ){lookup_val = parsed_cuts[i][7];}
-			if( param == "Ep_sigma" ){lookup_val = parsed_cuts[i][8];}
-			if( param == "W2" ){lookup_val = parsed_cuts[i][9];}
-			if( param == "W2_sigma" ){lookup_val = parsed_cuts[i][10];}
-			if( param == "W" ){lookup_val = parsed_cuts[i][11];}
-			if( param == "W_sigma" ){lookup_val = parsed_cuts[i][12];}
-
-		}
-	}
-	return lookup_val;
-}
-
 double lookup_parsed_cut_byPass(int pass, TString run_target, int kine, int sbsfieldscale, TString selection ){
-	double return_val = 0.0;
-
-	cout << "Looking up parsed_cut_byPass: " << pass << " - " << selection.Data() << endl;
+	double return_val = -1.0;
+	// cout << "Looking up parsed_cut_byPass: " << pass << ", " << selection.Data() << endl;
 	if( pass == 1 ){
+		cout << "lookup_parsed_cut(" << run_target.Data() << ", " << kine << ", " << sbsfieldscale << ", " << selection.Data() << ")" << endl;
 		return_val = lookup_parsed_cut( run_target, kine, sbsfieldscale, selection );
 	}
-	if( pass == 2 ){
+	else{
+		cout << "lookup_pass2_parsed_cut(" << run_target.Data() << ", " << kine << ", " << sbsfieldscale << ", " << selection.Data() << ")" << endl;
 		return_val = lookup_pass2_parsed_cut( run_target, kine, sbsfieldscale, selection );
+		cout << "Value for " << selection.Data() << ": " << return_val << endl;
 	}
+
+	if( return_val == -1 ){ 
+		std::cout << "Lookup for " << selection.Data() << " may not exist. Returned value of -1. " << std::endl;
+		cout << "Sleeping to allow for a ctrl-c catch..." << endl;
+		sleep(20);
+		cout << "Exiting...." << endl;
+		exit(1);	
+	}
+	
 	return return_val;
 }
 
 double lookup_dxdy_by_kine_and_mag_byPass(int pass, TString run_target, int kine, int sbsfieldscale, TString selection ){
-	double return_val = 0.0;
+	double return_val = -1.0;
 	cout << "Looking up dxdy_by_kine_and_mag_byPass: " << pass << " - " << selection.Data() << endl;
 	if( pass == 1 ){
 		return_val = lookup_dxdy_by_kine_and_mag( run_target, kine, sbsfieldscale, selection );
 	}
-	if( pass == 2 ){
+	else{
 		return_val = lookup_pass2_dxdy_by_kine_and_mag( run_target, kine, sbsfieldscale, selection );
 	}
+
+	if( return_val == -1 ){ 
+		std::cout << "Lookup for " << selection.Data() << " may not exist. Returned value of -1. " << std::endl;
+		cout << "Sleeping to allow for a ctrl-c catch..." << endl;
+		sleep(20);
+		cout << "Exiting...." << endl;
+		exit(1);	
+	}
+
 	return return_val;
 }
 
 double lookup_ADC_time_cut_byPass(int pass, TString run_target, int kine, int sbsfieldscale, TString selection ){
-	double return_val = 0.0;
+	double return_val = -1.0;
 	cout << "Looking up ADC_time_cut_byPass: " << pass << " - " << selection.Data() << endl;
 	if( pass == 1 ){
 		return_val = lookup_ADC_time_cut( run_target, kine, sbsfieldscale, selection );
 	}
-	if( pass == 2 ){
+	else{
 		return_val = lookup_pass2_ADC_time_cut( run_target, kine, sbsfieldscale, selection );
 	}
+
+	if( return_val == -1 ){ 
+		std::cout << "Lookup for " << selection.Data() << " may not exist. Returned value of -1. " << std::endl;
+		cout << "Sleeping to allow for a ctrl-c catch..." << endl;
+		sleep(20);
+		cout << "Exiting...." << endl;
+		exit(1);	
+	}
+
 	return return_val;
 }
 
 
 double lookup_ADC_diff_time_byPass(int pass, TString run_target, int kine, int sbsfieldscale, TString selection ){
-	double return_val = 0.0;
-	cout << "Looking up ADC_diff_time_byPass: " << pass << " - " << selection.Data() << endl;
+	double return_val = -1.0;
+	cout << "Looking up ADC_time_cut_byPass: " << pass << " - " << selection.Data() << endl;
 	if( pass == 1 ){
 		return_val = lookup_ADC_diff_time( run_target, kine, sbsfieldscale, selection );
 	}
-	if( pass == 2 ){
+	else{
 		return_val = lookup_pass2_ADC_diff_time( run_target, kine, sbsfieldscale, selection );
 	}
+
+	if( return_val == -1 ){ 
+		std::cout << "Lookup for " << selection.Data() << " may not exist. Returned value of -1. " << std::endl;
+		cout << "Sleeping to allow for a ctrl-c catch..." << endl;
+		sleep(20);
+		cout << "Exiting...." << endl;
+		exit(1);	
+	}
+
 	return return_val;
 }
-
 #endif

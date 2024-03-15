@@ -12,7 +12,13 @@ double HCal_theta;
 const double pi = TMath::Pi();
 const double Mp = 0.938272; //Mass of proton [GeV]
 const double Mn = 0.939565; //Mass of neutron [GeV]
+const double MN = (Mp + Mn)/2.0;
 const double Me = 0.00051; //Mass of electron [GeV]
+
+const double alpha = 1.0/137.0;
+const double mu_p = 2.79;
+const double mu_n = 1.91;
+const double delta = 0.710;
 
 //SBS Magnet
 const Double_t Dgap = 48.0*2.54/100.0; //about 1.22 m
@@ -40,6 +46,11 @@ const Double_t Xi = -2.655; //Distance from beam center to top of HCal in meters
 const Double_t Xf = 1.155; //Distance from beam center to bottom of HCal in meters, from database
 const Double_t Yi = -0.92964; //Distance from beam center to opposite-beam side of HCal in meters, from MC database
 const Double_t Yf = 0.92964; //Distance from beam center to beam side of HCal in meters, from MC database
+
+const Double_t HCalblk_l_h = 0.15494; //Horizontal length of all HCal blocks in meters, from MC database
+const Double_t HCalblk_l_v = 0.15875; //Vertical length of all HCal blocks in meters, from MC database
+double fiducial_xi, fiducial_xf, fiducial_yi, fiducial_yf;
+double hcal_x_fmin, hcal_x_fmax, hcal_y_fmin, hcal_y_fmax;
 
 //PRevious values:
 // const Double_t Xi = -2.20; // Distance from beam center to top of HCal in m

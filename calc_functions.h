@@ -77,6 +77,81 @@ double VectorStandardErrorOfMean( const std::vector<double>& data ){
 	return SEM;
 }
 
+double calc_MinMaxTGEProjectionY_val( const std::vector<double>& data, const std::vector<double>& data_err, TString val_select ){
+	double max_val = 0.0;
+	double min_val = 10000.0;
+	double return_val = -99.99;
+
+	if( data.size() != data_err.size() ){
+		cout << "!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-" << endl;
+		cout << "calc_functions.h - calc_MaxMinTGEProjectionY " << endl;
+		cout << "Vector sizes don't match" << endl;
+		cout << "!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-" << endl;
+	}
+
+	for( size_t i = 0; i < data.size(); i++ ){
+		double this_data = 0.0, this_data_err = 0.0, this_sum = 0.0, this_add = 0.0, this_minus = 0.0;
+		this_data = data[i];
+		this_data_err = data_err[i];
+		this_add = this_data + this_data_err;
+		this_minus = this_data - this_data_err;
+
+		if( this_add > max_val ){
+			max_val = this_add;
+		}
+		if( this_minus < min_val ){
+			min_val = this_minus;
+		}
+	}
+
+	if( val_select == "max" ){
+		return_val = max_val;
+	}
+	if( val_select == "min" ){
+		return_val = min_val;
+	}
+	if( val_select == "magnitude" ){
+		return_val = fabs(max_val - min_val);
+	}
+	return return_val;
+}
+
+vector<double> calc_MinMaxTGEProjectionY_vec( const std::vector<double>& data, const std::vector<double>& data_err ){
+	double max_val = 0.0;
+	double min_val = 10000.0;
+	double magnitude = 0.0;
+
+	vector<double> return_vec = {min_val, max_val, magnitude};
+
+	if( data.size() != data_err.size() ){
+		cout << "!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-" << endl;
+		cout << "calc_functions.h - calc_MaxMinTGEProjectionY " << endl;
+		cout << "Vector sizes don't match" << endl;
+		cout << "!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-" << endl;
+	}
+
+	for( size_t i = 0; i < data.size(); i++ ){
+		double this_data = 0.0, this_data_err = 0.0, this_sum = 0.0, this_add = 0.0, this_minus = 0.0;
+		this_data = data[i];
+		this_data_err = data_err[i];
+		this_add = this_data + this_data_err;
+		this_minus = this_data - this_data_err;
+
+		if( this_add > max_val ){
+			max_val = this_add;
+		}
+		if( this_minus < min_val ){
+			min_val = this_minus;
+		}
+	}
+
+	magnitude = fabs(max_val - min_val);
+
+	return_vec = {min_val, max_val, magnitude};
+
+	return return_vec;
+}
+
 double calc_gaus_error(double par_0, double par_0_err, double par_2, double par_2_err, double bin_width ){
 	double gaus_error = 0.0;
 

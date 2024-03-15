@@ -226,8 +226,8 @@ void MinimizationFunctionIn_CustomRange_ByScale_BGsub(int &npar, double *gin, do
 
     double Xaxis_min = cl_dx_chi2_data_simc_BGsub_global.dx_Xaxis_min;
     double Xaxis_max = cl_dx_chi2_data_simc_BGsub_global.dx_Xaxis_max;
-
-    result = CalculateChiSquaredIn_CustomRange_ByScale_BGsub(cl_dx_chi2_data_simc_BGsub_global, Xaxis_min, Xaxis_max);
+    //Xaxis_min, Xaxis_max
+    result = CalculateChiSquaredIn_CustomRange_ByScale_BGsub(cl_dx_chi2_data_simc_BGsub_global, -1.6, 0.5);
 }
 
 double CalculateChiSquaredInRangeByScale_BGsub_SimpleCalc( TString BG_type = "" ) {
@@ -718,23 +718,23 @@ void MinimizationFunction(int &npar, double *gin, double &result, double *param,
 
 
 
-void collect_chiSquared_values( const cl_chi2_minimization& cl_dx_chi2_data_simc, kine_ff_extract& SBSkine ){
+// void collect_chiSquared_values( const cl_chi2_minimization& cl_dx_chi2_data_simc, kine_ff_extract& SBSkine ){
 
-    global_BGsub_scale_p = cl_dx_chi2_data_simc.scale_p;
-    SBSkine.BGsub_scale_p = cl_dx_chi2_data_simc.scale_p;
+//     global_BGsub_scale_p = cl_dx_chi2_data_simc.scale_p;
+//     SBSkine.BGsub_scale_p = cl_dx_chi2_data_simc.scale_p;
 
-    global_BGsub_scale_p_error = cl_dx_chi2_data_simc.scale_p_error;
-    SBSkine.BGsub_scale_p_error = cl_dx_chi2_data_simc.scale_p_error;
+//     global_BGsub_scale_p_error = cl_dx_chi2_data_simc.scale_p_error;
+//     SBSkine.BGsub_scale_p_error = cl_dx_chi2_data_simc.scale_p_error;
 
-    global_BGsub_scale_n = cl_dx_chi2_data_simc.scale_n;
-    SBSkine.BGsub_scale_n = cl_dx_chi2_data_simc.scale_n;
+//     global_BGsub_scale_n = cl_dx_chi2_data_simc.scale_n;
+//     SBSkine.BGsub_scale_n = cl_dx_chi2_data_simc.scale_n;
 
-    global_BGsub_scale_n_error = cl_dx_chi2_data_simc.scale_n_error;
-    SBSkine.BGsub_scale_n_error = cl_dx_chi2_data_simc.scale_n_error;
+//     global_BGsub_scale_n_error = cl_dx_chi2_data_simc.scale_n_error;
+//     SBSkine.BGsub_scale_n_error = cl_dx_chi2_data_simc.scale_n_error;
 
-    SBSkine.BGsub_scale_np_ratio = global_BGsub_scale_n/global_BGsub_scale_p;
+//     SBSkine.BGsub_scale_np_ratio = global_BGsub_scale_n/global_BGsub_scale_p;
 
-}
+// }
 
 
 
