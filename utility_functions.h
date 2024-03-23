@@ -718,7 +718,7 @@ void shiftHistogram_by_kine( TH1D *histo_to_shift, int kine, bool systematics_mo
         }
 
         if( kine == 8 ){
-            shiftHistogram(histo_to_shift, 0.02);
+            shiftHistogram(histo_to_shift, 0.01);
         }
 
         if( kine == 9 ){
@@ -1062,7 +1062,131 @@ void sortTwoCorrelatedVectors(std::vector<double>& vec1, std::vector<double>& ve
     }
 }
 
+double linear_interpolation( double x1, double y1, double x2, double y2, double x ){
+    double interpolation = y1 + (x - x1)*( (y2 - y1)/(x2 - x11) );
+
+    return interpolation;
+}
+
+std::vector<std::pair<double, double>>  GetHistogramXvalSlicesByNevents(TH2D* hist, double targetEvents, double x_min = NAN, double x_max = NAN) {
+    // Let's allow for some custom start/finish x values:
+    bool custom_x_bounds = false;
+
+    int numBinsX = hist->GetNbinsX();
+    int numBinsY = hist->GetNbinsY();
+
+    int startBin = 1;
+    int endBin = numBinsX;
+
+    // if x_min and x_max are still NaN then do nothing, else, grab their corresponding bin values and use thouse as bounds
+    if( (x_min != x_min) || (x_max != x_max) ){
+        custom_x_bounds = false;
+    }
+    else{
+        custom_x_bounds = true;
+        startBin = hist->GetXaxis()->FindBin(x_min);
+        endBin = hist->GetXaxis()->FindBin(x_max);
+    }
+
+    // Iterate over x-axis bins
+    double totalEvents = 0;
+    double sliceStart = hist->GetXaxis()->GetBinLowEdge(startBin);
+    std::vector<std::pair<double, double>> slices; // Stores (start, end) pairs of x-slices
+
+    for (int i = startBin; i <= endBin; ++i) {
+        // Sum events in this x-bin
+        for (int j = 1; j <= numBinsY; ++j) {
+            totalEvents += hist->GetBinContent(i, j);
+        }
+
+        // Check if target events reached
+        if (totalEvents >= targetEvents || i == numBinsX) {
+            double sliceEnd = hist->GetXaxis()->GetBinUpEdge(i);
+
+            // cout << "Found range: " << sliceStart << " -> " << sliceEnd << ", " << totalEvents << endl;
+            // cout << "-------------------" << endl;
+            // Store the slice
+            slices.push_back(std::make_pair(sliceStart, sliceEnd));
+
+            // Reset for next slice
+            totalEvents = 0;
+            sliceStart = sliceEnd;
+        }
+    }
+    return slices;
+
+}
+
+std::vector<std::pair<double, double>>  GetHistogramBinSlicesByNevents(TH2D* hist, double targetEvents, double x_min = NAN, double x_max = NAN) {
+    bool print = false;
+
+    // Let's allow for some custom start/finish x values:
+    bool custom_x_bounds = false;
+    
+    int numBinsX = hist->GetNbinsX();
+    int numBinsY = hist->GetNbinsY();  
+
+    int startBin = 1;
+    int endBin = numBinsX;
+
+    // if x_min and x_max are still NaN then do nothing, else, grab their corresponding bin values and use thouse as bounds
+    if( (x_min != x_min) || (x_max != x_max) ){
+        custom_x_bounds = false;
+    }
+    else{
+        custom_x_bounds = true;
+        startBin = hist->GetXaxis()->FindBin(x_min);
+        endBin = hist->GetXaxis()->FindBin(x_max);
+    }
 
 
+    // Iterate over x-axis bins
+    double totalEvents = 0;
+
+    std::vector<std::pair<double, double>> slices; // Stores (start, end) pairs of x-slices
+
+    int sliceEnd = startBin;
+    int i = startBin;
+
+    while( sliceEnd <= endBin ){
+
+    // for( int i = 1; i < numBinsX; i++ ){
+
+        while( totalEvents <= targetEvents && sliceEnd < numBinsX){
+            hist->GetXaxis()->SetRange(i, sliceEnd);
+            totalEvents = hist->ProjectionY()->GetEntries();
+            if( print ){
+                cout << "--------------" << endl;
+                cout << "total events: " << totalEvents << endl;
+                cout << "bins: " << i << " -> " << sliceEnd << endl;
+            }
+
+            if( totalEvents > targetEvents ){
+                if( print ){
+                    cout << "breaking for: " << sliceEnd << ", " << totalEvents << endl;
+                }
+                break;
+            }   
+            sliceEnd++;  
+        }
+        if( print ){
+            cout << "_----------------------------_" << endl;
+            cout << "found bin range: " << i <<  " -> " << sliceEnd  << ", Total events: " << totalEvents << endl;
+            cout << "_----------------------------_" << endl;    
+        }
+
+        slices.push_back(std::make_pair(i, sliceEnd));
+
+        totalEvents = 0;
+
+        i = sliceEnd;
+        sliceEnd = i + 1;
+
+    }
+
+    hist->GetXaxis()->SetRange(1, numBinsX);
+    return slices;
+
+}
 
 #endif
