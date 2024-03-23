@@ -627,7 +627,7 @@ TF1 *scale_dyAnticut_by_TF1_eval_MaxMin( cl_SBSkine& SBSkine, double total_dx_x_
 			dyAnticut_prescale_factor = 0.40; //0.35867812; //Larger number subtracts more background from data.
 		}
 		if( kine == 8 ){
-			dyAnticut_prescale_factor = 0.41; //0.32276110; //0.43; //0.32276110; //Larger number subtracts more background from data.
+			dyAnticut_prescale_factor = 0.32; //0.32276110; //0.43; //0.32276110; //Larger number subtracts more background from data.
 		}
 		if( kine == 9 ){
 			dyAnticut_prescale_factor = 0.40; //0.260803; //0.48; //0.218666; //0.11132874; //Larger number subtracts more background from data.
@@ -643,12 +643,12 @@ TF1 *scale_dyAnticut_by_TF1_eval_MaxMin( cl_SBSkine& SBSkine, double total_dx_x_
 				dyAnticut_prescale_factor = 0.6; //0.35867812; //Larger number subtracts more background from data.
 			}
 			if( SBSkine.sbsfieldscale == 50 ){
-				dyAnticut_prescale_factor = -0.1; //0.35867812; //Larger number subtracts more background from data.
+				dyAnticut_prescale_factor = 0.0; //0.35867812; //Larger number subtracts more background from data.
 			}
 			
 		}
 		if( kine == 8 ){
-			dyAnticut_prescale_factor = 0.22276110; //0.43; //0.32276110; //Larger number subtracts more background from data.
+			dyAnticut_prescale_factor = 0.42; //0.322276110; //0.43; //0.32276110; //Larger number subtracts more background from data.
 		}
 		if( kine == 9 ){
 			dyAnticut_prescale_factor = 0.60; //0.260803; //0.48; //0.218666; //0.11132874; //Larger number subtracts more background from data.
