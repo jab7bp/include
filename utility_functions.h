@@ -1063,7 +1063,7 @@ void sortTwoCorrelatedVectors(std::vector<double>& vec1, std::vector<double>& ve
 }
 
 double linear_interpolation( double x1, double y1, double x2, double y2, double x ){
-    double interpolation = y1 + (x - x1)*( (y2 - y1)/(x2 - x11) );
+    double interpolation = y1 + (x - x1)*( (y2 - y1)/(x2 - x1) );
 
     return interpolation;
 }
